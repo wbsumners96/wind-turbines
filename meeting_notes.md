@@ -10,7 +10,7 @@
 ## Alex
 - [ ] fill out the [doodle poll](https://doodle.com/poll/pau3xfxshsb23sd9?utm_source=poll&utm_medium=link)
 ## Billy
-- [ ] fill out the [doodle poll](https://doodle.com/poll/pau3xfxshsb23sd9?utm_source=poll&utm_medium=link)
+- [x] fill out the [doodle poll](https://doodle.com/poll/pau3xfxshsb23sd9?utm_source=poll&utm_medium=link)
 ## Mary
 - [x] create doodle poll
 - [x] fix zoom meeting issues
