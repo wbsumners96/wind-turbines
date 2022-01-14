@@ -26,3 +26,6 @@
 ## Upcoming Meeting: TBD
 ### Questions
 - _add any questions you want to bring up in the next meeting here_
+- What's the difference between the ARD data and CAU data?
+- Where is the wind farm?
+
