@@ -12,7 +12,7 @@ def load_data(path: str, data_type: str, flag: bool = False):
         the path to the directory in which the data is located.
     data_type : 'ARD' or 'CAU'
         which data to load.
-    flag : bool
+    flag : bool, default = False
         whether to apply the 'normal operation' flag.
 
     Returns
@@ -37,8 +37,11 @@ def load_data(path: str, data_type: str, flag: bool = False):
         flag_file = data_type + '_Flag.csv'
         normal_operation = pd.read_csv(os.path.join(path, flag_file))
         joined_data = data.join(normal_operation, lsuffix='', rsuffix='f')
+        queried_data = joined_data.query('value == 1')
         
-        return joined_data.query('value == 1')
+        assert type(queried_data) is pd.DataFrame
+
+        return queried_data
 
     return data
 
