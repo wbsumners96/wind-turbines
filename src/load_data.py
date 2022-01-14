@@ -43,7 +43,7 @@ def load_data(path: str, data_type: str, flag: bool = False):
     return data
 
 
-def load_positions(path: str, data_type: str):
+def load_positions(path: str, data_type: str, flag: bool = False):
     """
     Load wind turbine relative position data.
     
@@ -70,4 +70,11 @@ def load_positions(path: str, data_type: str):
         return pd.read_csv(path + 'CAU_Turbine_Positions.csv')
 
     assert type(data) is pd.DataFrame
+    if flag:
+        flag_file = data_type + '_Flag.csv'
+        normal_operation = pd.read_csv(os.path.join(path, flag_file))
+        joined_data = data.join(normal_operation, lsuffix='', rsuffix='f')
+        
+        return joined_data.query('value == 1')
+
     raise TypeError('Argument \'type\' must be \'ARD\' or \'CAU\'.')
