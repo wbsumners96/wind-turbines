@@ -1,7 +1,7 @@
 import pandas as pd
 
 
-def load_data(path: str, type: str):
+def load_data(path: str, data_type: str):
     """
     Load wind turbine data.
     
@@ -9,7 +9,7 @@ def load_data(path: str, type: str):
     ----------
     path : str
         the path to the directory in which the data is located.
-    type : 'ARD' or 'CAU'
+    data_type : 'ARD' or 'CAU'
         which data to load.
 
     Returns
@@ -20,12 +20,16 @@ def load_data(path: str, type: str):
     Throws
     ------
     TypeError
-        if type is not 'ARD' or 'CAU'
+        if data_type is not 'ARD' or 'CAU'
     """
-    if type == 'ARD':
-        return pd.read_csv(path + 'ARD_Data.csv')
-    elif type == 'CAU':
-        return pd.read_csv(path + 'CAU_Data.csv')
+    if data_type == 'ARD':
+        data = pd.read_csv(path + 'ARD_Data.csv')
+    elif data_type == 'CAU':
+        data = pd.read_csv(path + 'CAU_Data.csv')
+    else:
+        raise TypeError('Argument \'data_type\' must be \'ARD\' or \'CAU\'.')
 
-    raise TypeError('Argument \'type\' must be \'ARD\' or \'CAU\'.')
+    assert type(data) is pd.DataFrame
+    
+    return data
 
