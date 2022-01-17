@@ -8,13 +8,14 @@
 
 # Tasks
 ## Alex
-- [ ] fill out the [doodle poll](https://doodle.com/poll/pau3xfxshsb23sd9?utm_source=poll&utm_medium=link)
+- [ ] fill out the corrected [doodle poll](https://doodle.com/poll/envaniqyhsn8crah?utm_source=poll&utm_medium=link)
 ## Billy
-- [x] fill out the [doodle poll](https://doodle.com/poll/pau3xfxshsb23sd9?utm_source=poll&utm_medium=link)
+- [x] fill out the corrected [doodle poll](https://doodle.com/poll/envaniqyhsn8crah?utm_source=poll&utm_medium=link)
 ## Mary
 - [x] create doodle poll
 - [x] fix zoom meeting issues
-- [x] fill out the [doodle poll](https://doodle.com/poll/pau3xfxshsb23sd9?utm_source=poll&utm_medium=link)
+- [x] correct time zone on doodle poll
+- [x] fill out the corrected [doodle poll](https://doodle.com/poll/envaniqyhsn8crah?utm_source=poll&utm_medium=link)
 
 # Meeting Notes
 ## 13 January 2022
@@ -25,7 +26,6 @@
 
 ## Upcoming Meeting: TBD
 ### Questions
-- _add any questions you want to bring up in the next meeting here_
 - What's the difference between the ARD data and CAU data?
 - Where is the wind farm?
     - Can we visit it? 😇
