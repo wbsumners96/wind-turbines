@@ -8,7 +8,7 @@
 
 # Tasks
 ## Alex
-- [ ] fill out the corrected [doodle poll](https://doodle.com/poll/envaniqyhsn8crah?utm_source=poll&utm_medium=link)
+- [x] fill out the corrected [doodle poll](https://doodle.com/poll/envaniqyhsn8crah?utm_source=poll&utm_medium=link)
 ## Billy
 - [x] fill out the corrected [doodle poll](https://doodle.com/poll/envaniqyhsn8crah?utm_source=poll&utm_medium=link)
 ## Mary
@@ -16,6 +16,10 @@
 - [x] fix zoom meeting issues
 - [x] correct time zone on doodle poll
 - [x] fill out the corrected [doodle poll](https://doodle.com/poll/envaniqyhsn8crah?utm_source=poll&utm_medium=link)
+- [ ] add power estimation feature
+      `weight = exp(-distance * distance)`
+      each reference has a reference value `power * weight`
+      `prediction = mean(reference_values)`
 
 # Meeting Notes
 ## 13 January 2022
@@ -29,3 +33,4 @@
 - What's the difference between the ARD data and CAU data?
 - Where is the wind farm?
     - Can we visit it? 😇
+- Is there a disadvantage to using all non-target turbines as references?
