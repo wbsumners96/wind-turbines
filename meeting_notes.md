@@ -9,6 +9,8 @@
 # Tasks
 ## Alex
 - [x] fill out the corrected [doodle poll](https://doodle.com/poll/envaniqyhsn8crah?utm_source=poll&utm_medium=link)
+- [x] implement most basic model of predicting wind turbine power. Take weighted average of all other wind turbines at given timestep. Weight according to relative distance. General and efficient code, can be easily extended
+
 ## Billy
 - [x] fill out the corrected [doodle poll](https://doodle.com/poll/envaniqyhsn8crah?utm_source=poll&utm_medium=link)
 ## Mary
@@ -16,10 +18,7 @@
 - [x] fix zoom meeting issues
 - [x] correct time zone on doodle poll
 - [x] fill out the corrected [doodle poll](https://doodle.com/poll/envaniqyhsn8crah?utm_source=poll&utm_medium=link)
-- [ ] add power estimation feature
-      `weight = exp(-distance * distance)`
-      each reference has a reference value `power * weight`
-      `prediction = mean(reference_values)`
+
 
 # Meeting Notes
 ## 13 January 2022
