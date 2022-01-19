@@ -2,9 +2,9 @@ import matplotlib.pyplot as plt
 import numpy as np 
 
 
-def linear_combination(data, weighting, target, time):
+def linear_combination(data, weighting, target, references, time):
     """
-    Predict power of a target turbine at a given time by taking a linear combination of power over all other turbines.
+    Predict power of a target turbine at a given time by taking a linear combination of the powers of given reference turbines at that time.
 
     The coefficients in the linear combination is given by a function of distance from the target turbine.
 
@@ -14,35 +14,46 @@ def linear_combination(data, weighting, target, time):
         turbine data.
     weighting : (distance: positive real) -> positive real
         coefficient of linear combination. 
-    target : int
+    target : str with format '<type ('ARD' or 'CAU')>_WTGxx'
         ID of target turbine.
+    references : list[str with format above]
+        IDs of reference turbines.
     time : str with datetime format 'DD-MMM-YYYY hh:mm:ss'
         target timestamp to predict.
 
     Returns
     -------
-    real
+    target_power : real
+        true power output of target turbine at given time.
+    predicted_power : real
         predicted power output of target turbine.
     """
-	#--- Calculate matrix of seprations between turbines i and j
+    # restrict data to given time
     current_data = data.query('ts == @time')
-    positions = current_data[["Easting","Northing"]].to_numpy()
-    print(positions.shape)
-    dxs = (positions[:,0][:,np.newaxis]-positions[:,0])
-    dys = (positions[:,1][:,np.newaxis]-positions[:,1])
-    rs = np.sqrt(dxs**2+dys**2)
+    target_data = current_data.query('instanceID == @target')
+    reference_data = current_data.query('instanceID == @references')
 
-    #--- Gaussian like weight matrix, with diagonals set to 0 so no wind turbine estimate based on self measurement
-    D=0.00001 # Set by hand, too small and every wind turbine contributes similarly, too big and no other wind turbine matters
-    # ws = np.exp(-D*rs**2)-np.eye(rs.shape[0])
-    ws = weighting(rs)
-    for i in range(ws.shape[0]):
-        ws[i, i] = 0
-    plt.imshow(ws)
-    plt.title("Weight matrix")
-    plt.show()
-    print(ws)
-    #print(positions)
+    # get vector of distances from target turbine to reference turbines
+    target_position = target_data[['Easting', 'Northing']].to_numpy()
+    reference_positions = reference_data[['Easting', 'Northing']].to_numpy()
+    deltas = reference_positions - target_position
+    
+    rs = np.array([dx*dx + dy*dy for [dx, dy] in deltas])
+    print(rs)
+
+    # dxs = (positions[:,0][:,np.newaxis]-positions[:,0])
+    # dys = (positions[:,1][:,np.newaxis]-positions[:,1])
+    #rs = np.sqrt(dxs**2+dys**2)
+
+    # get vector of weights
+    ws = np.vectorize(weighting)(rs)
+
+    # calculate predicted power as w_1 f(p_1) + ... + w_n f(p_n)
+    target_power = target_data['Power'].to_numpy()
+    reference_powers = reference_data['Power'].to_numpy()
+    predicted_power = np.dot(ws, reference_powers)
+
+    return target_power, predicted_power
 
     #--- Linear combination of f(powers) is just a matrix multiplication with weight matrix
     def f(power):
