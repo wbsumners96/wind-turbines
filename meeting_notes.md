@@ -13,12 +13,20 @@
 
 ## Billy
 - [x] fill out the corrected [doodle poll](https://doodle.com/poll/envaniqyhsn8crah?utm_source=poll&utm_medium=link)
+
 ## Mary
 - [x] create doodle poll
 - [x] fix zoom meeting issues
 - [x] correct time zone on doodle poll
 - [x] fill out the corrected [doodle poll](https://doodle.com/poll/envaniqyhsn8crah?utm_source=poll&utm_medium=link)
 
+## tbd
+- [ ] determine and develop an approach to testing method accuracy
+- [ ] tweak weighting function
+- [ ] tweak nonlinearity function $f(power)$
+- [ ] incorporate wind direction
+- [ ] incorporate neighboring times
+- [ ] learn how to determine reference turbines
 
 # Meeting Notes
 ## 13 January 2022
