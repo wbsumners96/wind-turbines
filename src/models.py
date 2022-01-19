@@ -1,6 +1,5 @@
 import matplotlib.pyplot as plt
 import numpy as np 
-import pandas as pd
 
 
 def linear_combination(data, weighting, target, time):
@@ -17,6 +16,8 @@ def linear_combination(data, weighting, target, time):
         coefficient of linear combination. 
     target : int
         ID of target turbine.
+    time : str with datetime format 'DD-MMM-YYYY hh:mm:ss'
+        target timestamp to predict.
 
     Returns
     -------
