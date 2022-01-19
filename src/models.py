@@ -2,11 +2,11 @@ import matplotlib.pyplot as plt
 import numpy as np 
 
 
-def linear_combination(data, weighting, target, references, time):
+def weighted_average_and_knuckles(data, weighting, target, references, time):
     """
-    Predict power of a target turbine at a given time by taking a linear combination of the powers of given reference turbines at that time.
+    Predict power of a target turbine at a given time by taking a weighted average of the powers of given reference turbines at that time.
 
-    The coefficients in the linear combination is given by a function of distance from the target turbine.
+    The coefficients in the weighted average is given by a function of distance from the target turbine.
 
     Parameters
     ----------
@@ -62,9 +62,9 @@ def linear_combination(data, weighting, target, references, time):
     ws = np.vectorize(weighting)(rs)
 
     # calculate predicted power as w_1 f(p_1) + ... + w_n f(p_n)
-    target_power = target_data['Power'].to_numpy()
+    target_power = target_data['Power'][0]
     reference_powers = reference_data['Power'].to_numpy()
-    predicted_power = np.dot(ws, reference_powers)
+    predicted_power = np.dot(ws, reference_powers)/np.sum(ws)
 
     return target_power, predicted_power
     
