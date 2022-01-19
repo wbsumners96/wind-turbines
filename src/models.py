@@ -62,7 +62,7 @@ def weighted_average_and_knuckles(data, weighting, target, references, time):
     ws = np.vectorize(weighting)(rs)
 
     # calculate predicted power as w_1 f(p_1) + ... + w_n f(p_n)
-    target_power = target_data['Power'][0]
+    target_power = target_data['Power']
     reference_powers = reference_data['Power'].to_numpy()
     predicted_power = np.dot(ws, reference_powers)/np.sum(ws)
 
