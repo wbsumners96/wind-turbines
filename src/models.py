@@ -2,71 +2,71 @@ import matplotlib.pyplot as plt
 import numpy as np 
 
 
-def weighted_average_and_knuckles(data, weighting, target, references, time):
-    """
-    Predict power of a target turbine at a given time by taking a weighted average of the powers of given reference turbines at that time.
+def weighted_average_and_knuckles(data, weighting, targets, references, time):
+	"""
+	Predict power of a target turbine at a given time by taking a weighted average of the powers of given reference turbines at that time.
 
-    The coefficients in the weighted average is given by a function of distance from the target turbine.
+	The coefficients in the weighted average is given by a function of distance from the target turbine.
 
-    Parameters
-    ----------
-    data : pd.DataFrame
-        turbine data.
-    weighting : (distance: positive real) -> positive real
-        coefficient of linear combination. 
-    target : int
-        ID of target turbine.
-    references : list[int]
-        IDs of reference turbines.
-    time : str with datetime format 'DD-MMM-YYYY hh:mm:ss'
-        target timestamp to predict.
+	Parameters
+	----------
+	data : pd.DataFrame
+	    turbine data.
+	weighting : (distance: positive real) -> positive real
+	    coefficient of linear combination. 
+	target : int
+	    ID of target turbine.
+	references : list[int]
+	    IDs of reference turbines.
+	time : str with datetime format 'DD-MMM-YYYY hh:mm:ss'
+	    target timestamp to predict.
 
-    Returns
-    -------
-    target_power : real
-        true power output of target turbine at given time.
-    predicted_power : real
-        predicted power output of target turbine.
+	Returns
+	-------
+	target_power : real
+	    true power output of target turbine at given time.
+	predicted_power : real
+	    predicted power output of target turbine.
 
-    Raises
-    ------
-    ValueError
-        data type is not 'ARD' or 'CAU'
-    """
-    # generate string ids of turbines
-    # first learn the type of the data
-    first_id = data['instanceID'][0]
-    if first_id.startswith('ARD'):
-        type = 'ARD'
-    elif first_id.startswith('CAU'):
-        type = 'CAU'
-    else:
-        raise ValueError('data is of an unexpected type.')
+	Raises
+	------
+	ValueError
+	    data type is not 'ARD' or 'CAU'
+	"""
+	# generate string ids of turbines
+	# first learn the type of the data
+	first_id = data['instanceID'][0]
+	if first_id.startswith('ARD'):
+		type = 'ARD'
+	elif first_id.startswith('CAU'):
+		type = 'CAU'
+	else:
+		raise ValueError('data is of an unexpected type.')
 
-    target_id = f'{type}_WTG{target:02d}'
-    reference_ids = [f'{type}_WTG{reference:02d}' for reference in references]
+	#target_id = f'{type}_WTG{target:02d}'
+	target_ids = [f'{type}_WTG{target:02d}' for target in targets]
+	reference_ids = [f'{type}_WTG{reference:02d}' for reference in references]
 
-    # restrict data to given time and separate into target and reference
-    current_data = data.query('ts == @time')
-    target_data = current_data.query('instanceID == @target_id')
-    reference_data = current_data.query('instanceID == @reference_ids')
+	# restrict data to given time and separate into target and reference
+	current_data = data.query('ts == @time')
+	target_data = current_data.query('instanceID == @target_ids')
+	reference_data = current_data.query('instanceID == @reference_ids')
 
-    # get vector of distances from target turbine to reference turbines
-    target_position = target_data[['Easting', 'Northing']].to_numpy()
-    reference_positions = reference_data[['Easting', 'Northing']].to_numpy()
-    deltas = reference_positions - target_position
-    
-    rs = np.array([dx*dx + dy*dy for [dx, dy] in deltas])
+	# get vector of distances from target turbine to reference turbines
+	target_positions = target_data[['Easting', 'Northing']].to_numpy()
+	reference_positions = reference_data[['Easting', 'Northing']].to_numpy()
 
-    # get vector of weights
-    ws = np.vectorize(weighting)(rs)
+	rs = np.sqrt(np.sum((target_positions[:,np.newaxis,:]-reference_positions)**2,axis=-1))
 
-    # calculate predicted power as w_1 f(p_1) + ... + w_n f(p_n)
-    target_power = target_data['Power']
-    reference_powers = reference_data['Power'].to_numpy()
-    predicted_power = np.dot(ws, reference_powers)/np.sum(ws)
+	# get vector of weights
+	ws = np.vectorize(weighting)(rs)
+	
+	# calculate predicted power as w_1 f(p_1) + ... + w_n f(p_n)
+	target_powers = target_data['Power'].to_numpy()
+	reference_powers = reference_data['Power'].to_numpy()
+	predicted_powers = np.einsum("ij,j->i",ws,reference_powers)/np.sum(ws,axis=1)
 
-    return target_power, predicted_power
+	return target_powers, predicted_powers
     
 
 def weighted_average(data,target="ARD_WTG01"):
