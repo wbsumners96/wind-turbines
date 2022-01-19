@@ -64,11 +64,11 @@ def load_positions(path: str, data_type: str, flag: bool = False):
 
     Throws
     ------
-    TypeError
+    ValueError
         if type is not 'ARD' or 'CAU'
     """    
     if data_type not in ('ARD', 'CAU'):
-        raise TypeError('Argument \'data_type\' must be \'ARD\' or \'CAU\'.')
+        raise ValueError('Argument \'data_type\' must be \'ARD\' or \'CAU\'.')
     data_file = data_type + '_Turbine_Positions.csv'
     data = pd.read_csv(os.path.join(path, data_file))
 
