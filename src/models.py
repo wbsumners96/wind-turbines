@@ -39,11 +39,6 @@ def linear_combination(data, weighting, target, references, time):
     deltas = reference_positions - target_position
     
     rs = np.array([dx*dx + dy*dy for [dx, dy] in deltas])
-    print(rs)
-
-    # dxs = (positions[:,0][:,np.newaxis]-positions[:,0])
-    # dys = (positions[:,1][:,np.newaxis]-positions[:,1])
-    #rs = np.sqrt(dxs**2+dys**2)
 
     # get vector of weights
     ws = np.vectorize(weighting)(rs)
@@ -54,25 +49,6 @@ def linear_combination(data, weighting, target, references, time):
     predicted_power = np.dot(ws, reference_powers)
 
     return target_power, predicted_power
-
-    #--- Linear combination of f(powers) is just a matrix multiplication with weight matrix
-    def f(power):
-        return power # dummy function for changing later if we want something more complex 
-    vf = np.vectorize(f)
-    powers_measured = current_data["Power"].to_numpy()
-    powers_estimated = ws @ powers_measured
-    # powers_estimated = np.einsum("i,ij->j", vf(powers_measured),ws)/np.sum(ws, axis=0)
-    
-    #--- Display results. So far a bit rubbish
-    xs = np.arange(rs.shape[0])
-    plt.scatter(xs,powers_estimated,label="Predicted")
-    plt.scatter(xs,powers_measured,label="Correct")
-    plt.xlabel("Turbine")
-    plt.ylabel("Power")
-    plt.legend()
-    plt.show()
-
-    return powers_estimated, powers_measured
     
 
 def weighted_average(data,target="ARD_WTG01"):
