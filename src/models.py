@@ -14,9 +14,9 @@ def linear_combination(data, weighting, target, references, time):
         turbine data.
     weighting : (distance: positive real) -> positive real
         coefficient of linear combination. 
-    target : str with format '<type ('ARD' or 'CAU')>_WTGxx'
+    target : int
         ID of target turbine.
-    references : list[str with format above]
+    references : list[int]
         IDs of reference turbines.
     time : str with datetime format 'DD-MMM-YYYY hh:mm:ss'
         target timestamp to predict.
@@ -27,11 +27,29 @@ def linear_combination(data, weighting, target, references, time):
         true power output of target turbine at given time.
     predicted_power : real
         predicted power output of target turbine.
+
+    Raises
+    ------
+    ValueError
+        data type is not 'ARD' or 'CAU'
     """
-    # restrict data to given time
+    # generate string ids of turbines
+    # first learn the type of the data
+    first_id = data['instanceID'][0]
+    if first_id.startswith('ARD'):
+        type = 'ARD'
+    elif first_id.startswith('CAU'):
+        type = 'CAU'
+    else:
+        raise ValueError('data is of an unexpected type.')
+
+    target_id = f'{type}_WTG{target:02d}'
+    reference_ids = [f'{type}_WTG{reference:02d}' for reference in references]
+
+    # restrict data to given time and separate into target and reference
     current_data = data.query('ts == @time')
-    target_data = current_data.query('instanceID == @target')
-    reference_data = current_data.query('instanceID == @references')
+    target_data = current_data.query('instanceID == @target_id')
+    reference_data = current_data.query('instanceID == @reference_ids')
 
     # get vector of distances from target turbine to reference turbines
     target_position = target_data[['Easting', 'Northing']].to_numpy()
