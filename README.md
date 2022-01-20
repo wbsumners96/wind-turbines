@@ -39,7 +39,7 @@ _note: maybe we are supposed to have another config changes file specifying upda
 - `InstanceID` the ID of the wind turbine, prefixed by `ARD`
 - `Baseline Config up to` the date of the baseline configuration, formatted `DD/MM/YYYY`
 - `Phase 1 upgrade from` the date of the latest upgrade, if applicable, formatted `DD/MM/YYYY` (if not applicable, marked as `N/A`)
-=======
+
 Finally, there is an additional file containing information on when changes were made to turbines which are expected to change their performance. (the following sentence is taken verbatim from oliver's email but i dont know how to interpret it - *For CAU there were two phases to made, each one with two configurations (A and B).  Really configuration A1 and B2 are quite similar, so we maybe should just be looking at Turbines 20 and 22 in their phase two configuration state, rather than worrying too much about the short lived config A1 and B1 (we can maybe just exclude all of that data from the analysis). For ARD the config change is simpler as all specified turbines are altered in the same way.*)
 
 ## Goals

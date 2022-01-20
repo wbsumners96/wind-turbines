@@ -20,7 +20,7 @@
 - [x] correct time zone on doodle poll
 - [x] fill out the corrected [doodle poll](https://doodle.com/poll/envaniqyhsn8crah?utm_source=poll&utm_medium=link)
 
-## tbd
+## TBD
 - [ ] determine and develop an approach to testing method accuracy
 - [ ] tweak weighting function
 - [ ] tweak nonlinearity function $f(power)$
@@ -35,9 +35,16 @@
 - standard minimum is 4 target wind turbines and 4 reference wind turbines
 - data is recorded with 10 minute resolution (the average of each 10 minute interval)
 
-## Upcoming Meeting: TBD
+## Upcoming Meeting: Thursday 20 January 09:00
 ### Questions
 - What's the difference between the ARD data and CAU data?
+- What do the ARD and CAU acronyms stand for?
 - Where is the wind farm?
     - Can we visit it? 😇
 - Is there a disadvantage to using all non-target turbines as references?
+- What is the acronym TI in the data, and what are its units? 
+- Is wind speed measured in km/h? mph?
+- What are the units for power?
+- Is calibrated wind direction represented in degrees relative to the direction the wind turbine is facing?
+- Is LocType the relative location of the remaining turbines with respect to turbine 01?
+- Is altitude measured in meters above sea level?
