@@ -13,7 +13,6 @@
 
 ## Billy
 - [x] fill out the corrected [doodle poll](https://doodle.com/poll/envaniqyhsn8crah?utm_source=poll&utm_medium=link)
-- [ ] create ui (for the purpose of only having to load the data once)
 
 ## Mary
 - [x] create doodle poll
@@ -27,8 +26,11 @@
 - [ ] tweak nonlinearity function $f(power)$
 - [ ] incorporate wind direction
 - [ ] incorporate neighboring times
+- [ ] incorporate turbulence intensity (TI)
 - [ ] learn how to determine reference turbines
 - [ ] load data as a 3D tensor if possible
+- [ ] incorporate modification dates
+- [ ] create ui (for the purpose of only having to load the data once)
 
 # Meeting Notes
 ## 13 January 2022
