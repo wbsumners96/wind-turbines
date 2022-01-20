@@ -13,6 +13,7 @@
 
 ## Billy
 - [x] fill out the corrected [doodle poll](https://doodle.com/poll/envaniqyhsn8crah?utm_source=poll&utm_medium=link)
+- [ ] create ui (for the purpose of only having to load the data once)
 
 ## Mary
 - [x] create doodle poll
@@ -27,6 +28,7 @@
 - [ ] incorporate wind direction
 - [ ] incorporate neighboring times
 - [ ] learn how to determine reference turbines
+- [ ] load data as a 3D tensor if possible
 
 # Meeting Notes
 ## 13 January 2022
@@ -37,7 +39,6 @@
 
 ## Upcoming Meeting: Thursday 20 January 09:00
 ### Questions
-- What's the difference between the ARD data and CAU data?
 - What do the ARD and CAU acronyms stand for?
 - Where is the wind farm?
     - Can we visit it? 😇
