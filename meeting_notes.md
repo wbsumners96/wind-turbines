@@ -15,6 +15,7 @@
 ## Billy
 - [x] fill out the corrected [doodle poll](https://doodle.com/poll/envaniqyhsn8crah?utm_source=poll&utm_medium=link)
 - [ ] create ui (for the purpose of only having to load the data once)
+- [ ] develop a predictor class to provide a common interface for different models
 
 ## Mary
 - [x] create doodle poll
