@@ -10,6 +10,7 @@
 ## Alex
 - [x] fill out the corrected [doodle poll](https://doodle.com/poll/envaniqyhsn8crah?utm_source=poll&utm_medium=link)
 - [x] implement most basic model of predicting wind turbine power. Take weighted average of all other wind turbines at given timestep. Weight according to relative distance. General and efficient code, can be easily extended
+- [ ] reorganize data into 3-dimensional structure
 
 ## Billy
 - [x] fill out the corrected [doodle poll](https://doodle.com/poll/envaniqyhsn8crah?utm_source=poll&utm_medium=link)
@@ -19,6 +20,7 @@
 - [x] fix zoom meeting issues
 - [x] correct time zone on doodle poll
 - [x] fill out the corrected [doodle poll](https://doodle.com/poll/envaniqyhsn8crah?utm_source=poll&utm_medium=link)
+- [ ] refactor code to PEP8 conventions
 
 ## TBD
 - [ ] determine and develop an approach to testing method accuracy
