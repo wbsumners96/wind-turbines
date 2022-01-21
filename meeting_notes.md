@@ -1,6 +1,8 @@
 # Quick Links
 - [zoom meeting](https://ed-ac-uk.zoom.us/j/87477169710)  
   passcode: wind2022
+- [PEP8](https://www.python.org/dev/peps/pep-0008/) coding conventions
+- [PEP257](https://www.python.org/dev/peps/pep-0257/) docstring conventions
 
 # Important Dates
 - **18 February** interim presentation
