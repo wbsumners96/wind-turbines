@@ -18,6 +18,7 @@
 - [x] fill out the corrected [doodle poll](https://doodle.com/poll/envaniqyhsn8crah?utm_source=poll&utm_medium=link)
 - [ ] create ui (for the purpose of only having to load the data once)
 - [ ] develop a predictor class to provide a common interface for different models
+- [ ] incorporate wind direction
 
 ## Mary
 - [x] create doodle poll
@@ -31,7 +32,6 @@
 - [ ] determine and develop an approach to testing method accuracy
 - [ ] tweak weighting function
 - [ ] tweak nonlinearity function $f(power)$
-- [ ] incorporate wind direction
 - [ ] incorporate neighboring times
 - [ ] incorporate turbulence intensity (TI)
 - [ ] learn how to determine reference turbines

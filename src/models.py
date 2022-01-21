@@ -75,6 +75,61 @@ def weighted_average_and_knuckles(data, weighting, targets,
 	return target_powers, predicted_powers
     
 
+def model_error(model, data):
+	"""
+	Return the normalised absolute error between predicted and actual power.
+
+	Computes the error for one dataset and instance of model.
+
+	Parameters
+	----------
+	model : (data : pd.DataFrame) -> list[float], list[float]
+		Prediction model with all other parameters set.
+	data : pd.DataFrame
+		Wind turbine data.
+
+	Returns
+	-------
+	error : float
+	"""
+	actual, predictions = model(data)
+	return np.mean(np.abs(actual - predictions) / actual)
+
+
+def model_error_averaged(model, data, date_range, turbine_refs,
+						turbine_targets):
+	"""
+	Calculate average model error.
+
+	Calculates the model error averaged over different choices of target
+	turbines, reference turbines, and times.
+
+	Parameters
+	----------
+	model : (data : pd.DataFrame, 
+			 targets : list[int], 
+			 references : list[int], 
+			 time : str with datetime format 'DD-MM-YYYY hh:mm:ss) 
+			     -> list[float],list[float]
+		Model with only weight function specified.
+	data : pd.DataFrame
+		Turbine data.
+	date_range : str
+		Range of dates to average over with 2 datatime formats,
+		'DD-MM-YYYY hh:mm:ss : DD-MM-YYYY hh:mm:ss'.
+	turbine_refs : int
+		Number of reference turbines.
+	turbine_targets : int
+		Number of target turbines.
+
+	Returns
+	-------
+	error : float
+	"""
+	data = data.loc[date_range]
+	print(data)
+
+
 def weighted_average(data, target='ARD_WTG01'):
 	"""
 	Predict the power of the specified wind turbine.
