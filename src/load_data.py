@@ -128,7 +128,7 @@ def load_data_positions(path, data_type, flag=False):
 		# Added as removing the flagged data messes up the data indexing
         data.reset_index(drop=True,inplace=True)
 
-    data_joined = pd.merge(data, pos, left_on=["instanceID"], \
+    data_joined = pd.merge(data, pos, left_on=["instanceID"],
 						   right_on=["Obstical"])
     # data_joined.reset_index(drop=True,inplace=True)
     return data_joined
