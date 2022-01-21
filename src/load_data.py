@@ -2,6 +2,94 @@ import os
 import pandas as pd
 
 
+
+class TurbineData(object):
+    def __init__(self,path: str, data_type: str):
+        """
+        Class constructor to load wind turbine data, relative position data and normal operation flags.
+        
+        Parameters
+        ----------
+        path : str
+            The path to the directory in which the data is located.
+        type : str
+            Which data to load, either 'ARD' or 'CAU'.
+
+        
+        Throws
+        ------
+        TypeError
+            If type is not 'ARD' or 'CAU'.
+        """    
+
+        if data_type not in ('ARD', 'CAU'):
+            raise TypeError('Argument \'data_type\' must be \'ARD\' or ' \
+                            + '\'CAU\'.')
+        
+        data_file = data_type + '_Data.csv'
+        data = pd.read_csv(os.path.join(path, data_file))
+        assert type(data) is pd.DataFrame
+
+        pos_file = data_type + '_Turbine_Positions.csv'
+        pos = pd.read_csv(os.path.join(path, pos_file))
+
+        #if flag:
+        #    data = data.join(normal_operation, lsuffix='', rsuffix='f')
+        #    # Added as removing the flagged data messes up the data indexing
+        #    data.reset_index(drop=True,inplace=True)
+
+        data_joined = pd.merge(data, pos, left_on=["instanceID"],right_on=["Obstical"])
+        
+        flag_file = data_type + '_Flag.csv'
+        normal_operation = pd.read_csv(os.path.join(path, flag_file))
+        data_complete = pd.merge(data_joined,normal_operation,on=["ts","instanceID"])
+
+        self.data = data_complete
+
+    def to_tensor(self):
+        """
+        Converts pd.dataframe to a rank 3 tensor, indexed by time, turbine and attribute
+        """
+        pass
+
+    def select_time(self, time, verbose=False):
+        """
+        Return the data for all wind turbines at the specified time.
+
+        Parameters
+        ----------
+        time : str
+        verbose : bool, default=False
+
+        Returns
+        -------
+        pd.Series
+        """
+        data = self.data
+        if verbose:
+            print("Selected time: " + str(data.ts[time]))
+        self.data = data[data.ts == data.ts[time]]
+
+    def select_turbine(self, turbine, verbose=False):
+        """
+        Return the data for one wind turbine across all times.
+
+        Parameters
+        ----------
+        time : str
+        verbose : bool, default=False
+
+        Returns
+        -------
+        pd.Series
+        """
+        data = self.data
+        if verbose:
+            print("Selected turbine " + str(data.instanceID[turbine]))
+        self.data =  data[data.instanceID == data.instanceID[turbine]]
+
+
+    
 def load_data(path: str, data_type: str, flag: bool = False):
 
     """
@@ -134,38 +222,3 @@ def load_data_positions(path, data_type, flag=False):
     # data_joined.reset_index(drop=True,inplace=True)
     return data_joined
     
-def select_time(data, time, verbose=False):
-    """
-    Return the data for all wind turbines at the specified time.
-
-	Parameters
-	----------
-	data : pd.DataFrame
-	time : str
-	verbose : bool, default=False
-
-	Returns
-	-------
-	pd.Series
-    """
-    if verbose:
-        print("Selected time: " + str(data.ts[time]))
-    return data[data.ts == data.ts[time]]
-
-def select_turbine(data, turbine, verbose=False):
-    """
-    Return the data for one wind turbine across all times.
-
-	Parameters
-	----------
-	data : pd.DataFrame
-	time : str
-	verbose : bool, default=False
-
-	Returns
-	-------
-	pd.Series
-    """
-    if verbose:
-        print("Selected turbine " + str(data.instanceID[turbine]))
-    return data[data.instanceID == data.instanceID[turbine]]
