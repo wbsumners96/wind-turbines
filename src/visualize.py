@@ -30,15 +30,16 @@ def direction_power_histogram(data):
 
 	print(np.nanmax(data_np[:,0]))
 	
-	hist,xedges,yedges = np.histogram2d(data_np[:,0],data_np[:,1],bins=n_bins,range=[[0,360],[0,np.nanmax(data_np[:,1])]])
+	hist,xedges,yedges = np.histogram2d(data_np[:,1],data_np[:,0],bins=n_bins,range=[[0,np.nanmax(data_np[:,1])],[0,360]])
 	print(xedges.shape)
 
 	fig,ax = plt.subplots(1,1)
 	img = ax.imshow(hist,origin="lower")
 	ax.set_xticks(np.arange(n_bins+1)[::10])
 	ax.set_yticks(np.arange(n_bins+1)[::10])
-	ax.set_xticklabels(xedges[::10])
-	ax.set_yticklabels(yedges[::10])
+	ax.set_xticklabels(yedges[::10])
+	ax.set_yticklabels(xedges[::10])
+	ax.set_title("ARD")
 	ax.set_xlabel("Turbine angle")
 	ax.set_ylabel("Power output")
 	ax.tick_params(axis="x",labelrotation=-90)

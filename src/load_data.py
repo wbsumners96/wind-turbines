@@ -2,7 +2,8 @@ import os
 import pandas as pd
 
 
-def load_data(path, data_type, flag=False):
+def load_data(path: str, data_type: str, flag: bool = False):
+
     """
     Load wind turbine data.
     
@@ -70,7 +71,7 @@ def load_positions(path, data_type, flag=False):
         If type is not 'ARD' or 'CAU'.
     """    
     if data_type not in ('ARD', 'CAU'):
-        raise ValueError('Argument \'data_type\' must be \'ARD\' or ' \ 
+        raise ValueError('Argument \'data_type\' must be \'ARD\' or ' \
 						 + '\'CAU\'.')
 
     data_file = data_type + '_Turbine_Positions.csv'

@@ -12,20 +12,20 @@ def weighted_average_and_knuckles(data, weighting, targets, references, time):
 	----------
 	data : pd.DataFrame
 	    turbine data.
-	weighting : (distance: positive real) -> positive real
+	weighting : (distance: positive float) -> positive float
 	    coefficient of linear combination. 
-	target : int
-	    ID of target turbine.
+	target : list[int]
+	    ID of target turbines.
 	references : list[int]
 	    IDs of reference turbines.
-	time : str with datetime format 'DD-MMM-YYYY hh:mm:ss'
+	time : str with datetime format 'DD-MM-YYYY hh:mm:ss'
 	    target timestamp to predict.
 
 	Returns
 	-------
-	target_power : real
+	target_power : float
 	    true power output of target turbine at given time.
-	predicted_power : real
+	predicted_power : float
 	    predicted power output of target turbine.
 
 	Raises
@@ -60,7 +60,7 @@ def weighted_average_and_knuckles(data, weighting, targets, references, time):
 
 	# get vector of weights
 	ws = np.vectorize(weighting)(rs)
-	
+
 	# calculate predicted power as w_1 f(p_1) + ... + w_n f(p_n)
 	target_powers = target_data['Power'].to_numpy()
 	reference_powers = reference_data['Power'].to_numpy()
@@ -68,6 +68,55 @@ def weighted_average_and_knuckles(data, weighting, targets, references, time):
 
 	return target_powers, predicted_powers
     
+
+def model_error(model,data):
+	"""
+	Returns the normalised absolute error between predicted and actual powers, for one dataset and instance of model
+
+
+	Parameters
+	----------
+	model : (data: pd.DataFrame) -> list[float],list[float]
+		prediction model with all other parameters set
+	data : pd.DataFrame
+		turbine data
+
+	Returns
+	-------
+	error : float
+
+	"""
+	actual,predictions = model(data)
+	return np.mean(np.abs(actual-predictions)/actual)
+
+def model_error_averaged(model,data,date_range,turbine_refs,turbine_targets):
+	"""
+	Calculates model error averaged over different choices of target and reference turbines, and times
+
+
+	Parameters
+	----------
+	model : (data: pd.DataFrame, 
+			 targets: list[ints], 
+			 references: list[ints], 
+			 time: str with datetime format 'DD-MM-YYYY hh:mm:ss) -> list[float],list[float]
+		model but with only weight function specified
+	data: pd.DataFrame
+		turbine data
+	date_range: str with 2 datatime format 'DD-MM-YYYY hh:mm:ss : DD-MM-YYYY hh:mm:ss'
+		range of dates to average over
+	turbine_refs: int
+		number of referene turbines
+	turbine_targets: int
+		number of target turbines
+
+	Returns
+	-------
+	error: float
+	"""
+	data = data.loc[date_range]
+	print(data)
+
 
 def weighted_average(data,target="ARD_WTG01"):
 	"""
