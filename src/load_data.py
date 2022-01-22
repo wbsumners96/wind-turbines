@@ -2,11 +2,11 @@ import os
 import pandas as pd
 
 
-
-class TurbineData(object):
-    def __init__(self,path: str, data_type: str):
+class TurbineData:
+    def __init__(self, path, data_type):
         """
-        Class constructor to load wind turbine data, relative position data and normal operation flags.
+        Class constructor to load wind turbine data, relative position data and 
+        normal operation flags.
         
         Parameters
         ----------
@@ -15,13 +15,11 @@ class TurbineData(object):
         type : str
             Which data to load, either 'ARD' or 'CAU'.
 
-        
         Throws
         ------
         TypeError
             If type is not 'ARD' or 'CAU'.
         """    
-
         if data_type not in ('ARD', 'CAU'):
             raise TypeError('Argument \'data_type\' must be \'ARD\' or ' \
                             + '\'CAU\'.')
@@ -38,17 +36,20 @@ class TurbineData(object):
         #    # Added as removing the flagged data messes up the data indexing
         #    data.reset_index(drop=True,inplace=True)
 
-        data_joined = pd.merge(data, pos, left_on=["instanceID"],right_on=["Obstical"])
+        data_joined = pd.merge(data, pos, left_on=["instanceID"],
+                right_on=["Obstical"])
         
         flag_file = data_type + '_Flag.csv'
         normal_operation = pd.read_csv(os.path.join(path, flag_file))
-        data_complete = pd.merge(data_joined,normal_operation,on=["ts","instanceID"])
+        data_complete = pd.merge(data_joined, normal_operation,
+                on=["ts","instanceID"])
 
         self.data = data_complete
 
     def to_tensor(self):
         """
-        Converts pd.dataframe to a rank 3 tensor, indexed by time, turbine and attribute
+        Converts pd.dataframe to a rank 3 tensor, indexed by time, turbine and 
+        attribute
         """
         pass
 
@@ -87,7 +88,6 @@ class TurbineData(object):
         if verbose:
             print("Selected turbine " + str(data.instanceID[turbine]))
         self.data =  data[data.instanceID == data.instanceID[turbine]]
-
 
     
 def load_data(path: str, data_type: str, flag: bool = False):
