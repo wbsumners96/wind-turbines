@@ -1,3 +1,8 @@
+from load_data import TurbineData
+
+import itertools
+import threading
+import time
 import sys
 
 
@@ -17,9 +22,25 @@ class TurbinatorApp:
         if farm is None:
             sys.exit()    
         
-        print(f'chosen farm is {farm}')
+        loading_complete = False 
+        def show_loading_animation():
+            for c in itertools.cycle(['⠟', '⠯', '⠷', '⠾', '⠽', '⠻']):
+                if loading_complete:
+                    break
+                sys.stdout.write('\r' + c + ' Loading turbine data...')
+                sys.stdout.flush()
+                time.sleep(0.1)
+        animation_thread = threading.Thread(target = show_loading_animation)
+        animation_thread.start()
 
-        # Load available models from appconfig and have user create predictor. 
+        data = TurbineData(APP_CONFIG['data_path'], farm)
+        sys.stdout.write('\rLoading complete.                        \n')
+        loading_complete = True
+
+        print(data.data.info())
+
+        # Load available models from appconfig and have user select one. 
+        # Have user enter model parameters and construct predictor.
         # Ask user for targets, references, and times.
         # Run predictor and display results.
 
@@ -54,7 +75,10 @@ class TurbinatorApp:
             except ValueError:
                 print('Invalid selection.\n')
 
-    def select_predictor(self):
+    def select_model(self):
+        return NotImplementedError()
+
+    def create_predictor(self):
         return NotImplementedError()
 
     def select_turbines(self):
