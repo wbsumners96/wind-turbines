@@ -19,6 +19,9 @@ def wind_direction_location(data_positions, time, filename=None):
 	filename : str
 		The name of the file containing the resulting plot.
 	"""
+	if data_positions.datatype=="np.ndarray":
+		raise TypeError("Data needs to be in pd.DataFrame format")
+	data_positions = data_positions.data
 	data_time0 = (data_positions[data_positions.ts 
 				  == data_positions.ts[time]])# .sort_values("Easting")
 	print(data_time0)
@@ -50,6 +53,9 @@ def direction_power_histogram(data):
 	----------
 	data : pd.DataFrame
 	"""
+	if data.datatype=="np.ndarray":
+		raise TypeError("Data needs to be in pd.DataFrame format")
+	data = data.data
 	n_bins = 100
 	data_np = data[['Wind_direction_calibrated', 'Power']].to_numpy()
 	print(np.nanmax(data_np[:,0]))

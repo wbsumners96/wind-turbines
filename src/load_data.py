@@ -1,12 +1,12 @@
 import os
 import pandas as pd
+import numpy as np 
 
-
-
-class TurbineData(object):
-    def __init__(self,path: str, data_type: str):
+class TurbineData:
+    def __init__(self, path, data_type):
         """
-        Class constructor to load wind turbine data, relative position data and normal operation flags.
+        Class constructor to load wind turbine data, relative position data and 
+        normal operation flags.
         
         Parameters
         ----------
@@ -15,13 +15,11 @@ class TurbineData(object):
         type : str
             Which data to load, either 'ARD' or 'CAU'.
 
-        
         Throws
         ------
         TypeError
             If type is not 'ARD' or 'CAU'.
         """    
-
         if data_type not in ('ARD', 'CAU'):
             raise TypeError('Argument \'data_type\' must be \'ARD\' or ' \
                             + '\'CAU\'.')
@@ -38,19 +36,61 @@ class TurbineData(object):
         #    # Added as removing the flagged data messes up the data indexing
         #    data.reset_index(drop=True,inplace=True)
 
-        data_joined = pd.merge(data, pos, left_on=["instanceID"],right_on=["Obstical"])
+        data_joined = pd.merge(data, 
+                               pos, 
+                               left_on=["instanceID"],
+                               right_on=["Obstical"])
         
         flag_file = data_type + '_Flag.csv'
         normal_operation = pd.read_csv(os.path.join(path, flag_file))
-        data_complete = pd.merge(data_joined,normal_operation,on=["ts","instanceID"])
+        data_complete = pd.merge(data_joined, 
+                                 normal_operation,
+                                 on=["ts","instanceID"])
 
         self.data = data_complete
+        self.farm = data_type
+        self.datatype = "pd.DataFrame"
 
     def to_tensor(self):
         """
-        Converts pd.dataframe to a rank 3 tensor, indexed by time, turbine and attribute
+        Converts pd.dataframe to 2 rank 3 tensors, indexed by time, turbine and 
+        attribute
+        One tensor is a float containing all the actual data,
+        one is of strings containing labels of datatime and turbine
+        ----------
+        self.data is now an array indexed as follows:
+        data[time,turbine,attribute]
+        Attributes index order:
+            0 - Turbulence Intensity
+            1 - Wind Speed
+            2 - Power
+            3 - ambient temperature
+            4 - Wind direction callibrated
+            5 - Easting
+            6 - Northing
+            7 - Hub Height
+            8 - Diameter
+            9 - Altitude
+            10 - Normal operation flag
+        self.data_labels is indexed as follows:
+        data_labels[time,turbine,label]
+        label index:
+            0 - datatime
+            1 - instanceID
+
         """
-        pass
+        data_numpy = self.data.to_numpy()
+        if self.farm == "ARD":
+            n_turbines = 15
+        elif self.farm == "CAU":
+            n_turbines = 39
+        data_tensor = data_numpy.reshape((n_turbines,-1,15))
+        data_tensor = np.einsum("ijk->jik",data_tensor)
+        print(data_tensor.shape)
+        mask = np.array([0,0,1,1,1,1,1,0,0,1,1,1,1,1,1],dtype=bool)
+        self.data = data_tensor[:,:,mask].astype(float)
+        self.data_label = data_tensor[:,:,:2]
+        self.datatype = "np.ndarray"
 
     def select_time(self, time, verbose=False):
         """
@@ -68,8 +108,10 @@ class TurbineData(object):
         data = self.data
         if verbose:
             print("Selected time: " + str(data.ts[time]))
-        self.data = data[data.ts == data.ts[time]]
-
+        if self.datatype=="pd.DataFrame":
+            return data[data.ts == data.ts[time]]
+        elif self.datatype=="np.ndarray":
+            self.data = data[time]
     def select_turbine(self, turbine, verbose=False):
         """
         Return the data for one wind turbine across all times.
@@ -81,14 +123,15 @@ class TurbineData(object):
 
         Returns
         -------
-        pd.Series
+        pd.Series or numpy array, depending on current type of data stored in class
         """
         data = self.data
         if verbose:
             print("Selected turbine " + str(data.instanceID[turbine]))
-        self.data =  data[data.instanceID == data.instanceID[turbine]]
-
-
+        if self.datatype=="pd.DataFrame":
+            return data[data.instanceID == data.instanceID[turbine]]
+        elif self.datatype=="np.ndarray":
+            self.data = data[:,turbine]
     
 def load_data(path: str, data_type: str, flag: bool = False):
 

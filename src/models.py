@@ -2,6 +2,9 @@ import matplotlib.pyplot as plt
 import numpy as np 
 
 
+
+
+
 def weighted_average_and_knuckles(data, weighting, targets,
 								  references, time):
 	"""
@@ -62,7 +65,7 @@ def weighted_average_and_knuckles(data, weighting, targets,
 	reference_positions = reference_data[['Easting', 'Northing']].to_numpy()
 
 	distances = np.sqrt(np.sum((target_positions[:,np.newaxis,:]
-				- reference_positions) ** 2, axis=-1))
+							   - reference_positions) ** 2, axis=-1))
 	# Get vector of weights
 	weights = np.vectorize(weighting)(distances)
 	
@@ -130,67 +133,67 @@ def model_error_averaged(model, data, date_range, turbine_refs,
 	print(data)
 
 
-def weighted_average(data, target='ARD_WTG01'):
+def weighted_average(data, weighting, tar_mask, ref_mask,verbose=False):
 	"""
-	Predict the power of the specified wind turbine.
+	Predict the power of the specified wind turbines.
+	Needs data as a numpy array, parallel over time axis
 	
-	First attempt at a crude model, where the power is predicted by a
-	weighted average (by distance) of all other turbines at that point in
-	time.
 
 	Parameters
 	----------
-	data : pd.DataFrame
+	data : numpy.ndarray
 		Wind turbine data.
-	target : str
-		Target turbine ID.
+	weighting : (distance: positive float) -> positive float
+	    Function that determines the coefficient of linear combination.
+	targets : list of int
+	    ID of target turbine.
+	references : list of int
+	    IDs of reference turbines.
+	verbose : bool
+		Choose whether to display heatmap of weight matrix
 
 	Returns
 	-------
-	powers_estimated : numpy.ndarray
-		Estimated power output of the target turbine.
-	powers_measured : numpy.ndarray
-		Measured power output of the target turbine.
+	pred_power : numpy.ndarray
+		Estimated power output of the target turbines.
+	tar_power : numpy.ndarray
+		Measured power output of the target turbines.
 	"""
 
-	# Calculate matrix of seprations between turbines i and j
-	positions = data[['Easting', 'Northing']].to_numpy()
-	dxs = (positions[:, 0][:, np.newaxis] - positions[:, 0])
-	dys = (positions[:, 1][:, np.newaxis] - positions[:, 1])
-	distances = np.sqrt(dxs * dxs + dys * dys)
+	if data.datatype!='np.ndarray':
+		raise TypeError('Data must be numpy array, run .to_tensor() first')
+	data = data.data
 
-	# Set by hand, too small and every wind turbine contributes similarly,
-	# too big and no other wind turbine matters
-	D = 0.00001
-	# Gaussian-like weight matrix, with diagonals set to 0 so no wind
-	# turbine estimate is based on self-measurement
-	weights = np.exp(-D * distances * distances) \
-			  - np.eye(distances.shape[0])
-	plt.imshow(weights)
-	plt.title('Weight matrix')
-	plt.show()
-	# print(positions)
+	tars = data[:,tar_mask]
+	refs = data[:,ref_mask]
 
+	if not np.all(tars[:,-1]):
+		print("Warning: some target turbines are faulty")
+	if not np.all(refs[:,-1]):
+		print("Warning: some reference turbines are faulty")
 
-	# Weighted average of f(powers) is just a matrix multiplication with
-	# the weight matrix
+	# Position data
+	tar_pos = tars[0,:,5:6] # turbines don't move
+	ref_pos = refs[0,:,5:6]
+	# Power data
+	tar_power = tars[:,:,2]
+	ref_power = refs[:,:,2]
+
+	# Calculate euclidean distance between all target-reference pairs
+	ds = np.sqrt(np.sum((tar_pos[:,np.newaxis,:]-ref_pos)**2,axis=-1))
+
+	ws = np.vectorize(weighting)(ds)
+	if verbose:
+		plt.imshow(ws)
+		plt.title('Weight matrix')
+		plt.show()
+	
+
 	def f(power):
 		# Dummy function to change later if we want something more complex 
 		return power
-	
 
 	vf = np.vectorize(f)
-	powers_measured = data['Power'].to_numpy()
-	powers_estimated = np.einsum('i, ij->j', vf(powers_measured), weights) \
-					   / np.sum(weights, axis=0)
+	pred_power = np.einsum('ij, kj->ki', ws, ref_power)/np.sum(ws, axis=1)
 	
-	# Display results. So far a bit rubbish
-	xs = np.arange(distances.shape[0])
-	plt.scatter(xs, powers_estimated, label='Predicted')
-	plt.scatter(xs,powers_measured,label='Correct')
-	plt.xlabel('Turbine')
-	plt.ylabel('Power')
-	plt.legend()
-	plt.show()
-
-	return powers_estimated, powers_measured
+	return pred_power, tar_power
