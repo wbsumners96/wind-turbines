@@ -34,13 +34,10 @@ class TurbinatorApp:
         while True:
             print(f'current page is {self.page}')
             if self.page == Pages.FARM:
-                # Ask user for farm choice.
                 self.select_farm(farms)
             elif self.page == Pages.LOAD_DATA:
-                # Load farm data.
                 self.load_data()
             elif self.page == Pages.MODEL:
-                # Ask user for model choice. 
                 self.select_model(models)
             elif self.page == Pages.PREDICTOR:
                 self.create_predictor()
@@ -136,14 +133,14 @@ class TurbinatorApp:
     def create_predictor(self):
         print(self.model.__init__.__doc__)
 
-        print("""Enter parameters for selected model, or enter (f) to go back to 
-               farm selection, (m) to go back to model selection, and (q) to 
-               exit the application. Hit Return to use the currently saved 
-               parameter if available (in parentheses).""")
+        print("""Enter parameters for selected model, or enter (f) to go back 
+              to farm selection, (m) to go back to model selection, and (q) to 
+              exit the application. Hit Return to use the currently saved 
+              parameter if available (in parentheses).""")
         for parameter in self.model.__init__.__code__.co_varnames[1:]:
             while True:
                 current_value = f'({self.predictor_parameters[parameter]})' if \
-                    parameter in self.predictor_parameters else ''
+                        parameter in self.predictor_parameters else ''
                 print(f'{parameter}: {current_value} ', end='')
                 user_param = input()
                 if user_param == 'f':
