@@ -25,8 +25,8 @@
 - [x] fix zoom meeting issues
 - [x] correct time zone on doodle poll
 - [x] fill out the corrected [doodle poll](https://doodle.com/poll/envaniqyhsn8crah?utm_source=poll&utm_medium=link)
-- [ ] refactor code to PEP8 conventions
-- [ ] add info from meeting notes to README
+- [x] refactor code to PEP8 conventions
+- [x] add info from meeting notes to README
 
 ## TBD
 - [ ] determine and develop an approach to testing method accuracy
