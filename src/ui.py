@@ -22,7 +22,6 @@ class TurbinatorApp:
         self.page = Pages.FARM
 
     def run(self):
-        # Load application configuration from config.toml.
         self.app_config = { 
             'title': 'TURBINATOR',
             'data_path': '~/Documents/Semester 2/TurbineProject/Data',
@@ -30,7 +29,6 @@ class TurbinatorApp:
 
         farms = ['ARD', 'CAU']
         
-        # Print application title.
         print(self.app_config['title'])
         
         while True:
@@ -54,29 +52,7 @@ class TurbinatorApp:
             elif self.page == Pages.EXIT:
                 sys.exit()
 
-            # Have user enter model parameters and construct predictor.
-            # Ask user for targets, references, and times.
-            # Run predictor and display results.
-
-
     def select_farm(self, farms):
-        """
-        Display farm selection screen.
-
-        Parameters
-        ----------
-        farms: list[str]
-            Available farms to choice.
-
-        Returns
-        -------
-        result: Result.ACCEPT | Result.EXIT
-            ACCEPT indicates the user has chosen a farm, EXIT indicates the user
-            wishes to exit the application.
-        farm: str
-            If result is ACCEPT, the chosen farm, guaranteed to be an 
-            item in `farms`. Otherwise, undefined. 
-        """
         while True:
             print('Choose the farm to work on: ')
             for i, farm in enumerate(farms):
@@ -126,21 +102,6 @@ class TurbinatorApp:
         self.page = Pages.MODEL
 
     def select_model(self, models): 
-        """
-        Display model selection screen.
-
-        Parameters
-        ----------
-        models: list[class]
-            Available models, each a subclass of Predictor.
-
-        Returns
-        -------
-        result: Result.ACCEPT | Result.FARM | Result.EXIT
-            Which screen the user wants to proceed to
-        model: class
-            If result is ACCEPT, the chosen model. Otherwise undefined.
-        """
         while True:
             print('Choose from the following available models: ')
             for i, model in enumerate(models):
@@ -175,10 +136,10 @@ class TurbinatorApp:
     def create_predictor(self):
         print(self.model.__init__.__doc__)
 
-        print('Enter parameters for selected model, or enter (f) to go back to \
-               farm selection, (m) to go back to model selection, and (q) to \
-               exit the application. Hit Return to use the currently saved \
-               parameter if available (in parentheses).')
+        print("""Enter parameters for selected model, or enter (f) to go back to 
+               farm selection, (m) to go back to model selection, and (q) to 
+               exit the application. Hit Return to use the currently saved 
+               parameter if available (in parentheses).""")
         for parameter in self.model.__init__.__code__.co_varnames[1:]:
             while True:
                 current_value = f'({self.predictor_parameters[parameter]})' if \
