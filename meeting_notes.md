@@ -57,5 +57,5 @@
 - we can take the turbine angle to be the same as the wind direction
 - look at different wind turbulence intensities
 
-## Upcoming Meeting: Friday 21 January 09:00
+## Upcoming Meeting: Thursday 27 January 09:00
 ### Questions
