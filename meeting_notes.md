@@ -25,8 +25,8 @@
 - [x] fix zoom meeting issues
 - [x] correct time zone on doodle poll
 - [x] fill out the corrected [doodle poll](https://doodle.com/poll/envaniqyhsn8crah?utm_source=poll&utm_medium=link)
-- [ ] refactor code to PEP8 conventions
-- [ ] add info from meeting notes to README
+- [x] refactor code to PEP8 conventions
+- [x] add info from meeting notes to README
 
 ## TBD
 - [ ] determine and develop an approach to testing method accuracy
@@ -57,5 +57,5 @@
 - we can take the turbine angle to be the same as the wind direction
 - look at different wind turbulence intensities
 
-## Upcoming Meeting: Friday 21 January 09:00
+## Upcoming Meeting: Thursday 27 January 09:00
 ### Questions
