@@ -1,5 +1,6 @@
+import inspect
 from load_data import TurbineData
-from model import models, predictor
+from model import models
 
 from enum import Enum
 import itertools
@@ -137,7 +138,10 @@ class TurbinatorApp:
               to farm selection, (m) to go back to model selection, and (q) to 
               exit the application. Hit Return to use the currently saved 
               parameter if available (in parentheses).""")
-        for parameter in self.model.__init__.__code__.co_varnames[1:]:
+        for parameter in inspect.signature(self.model.__init__).parameters\
+                .keys():
+            if parameter == 'self':
+                continue 
             while True:
                 current_value = f'({self.predictor_parameters[parameter]})' if \
                         parameter in self.predictor_parameters else ''
