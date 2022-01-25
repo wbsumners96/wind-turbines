@@ -2,10 +2,12 @@ import inspect
 from load_data import TurbineData
 from model import models
 
+import datetime
 from enum import Enum
 import itertools
 import threading
 import time
+import re
 import sys
 
 
@@ -42,11 +44,11 @@ class TurbinatorApp:
                 self.select_model(models)
             elif self.page == Pages.PREDICTOR:
                 self.create_predictor()
-                print(self.predictor)
             elif self.page == Pages.TURBINES:
-                sys.exit()
+                self.select_turbines()
             elif self.page == Pages.RESULTS:
-                pass
+                self.display_results()
+                self.page = Pages.EXIT
             elif self.page == Pages.EXIT:
                 sys.exit()
 
@@ -165,17 +167,107 @@ class TurbinatorApp:
                         break
                     except ValueError:
                         print('Invalid float value provided.')
+                break
 
         self.predictor = self.model(**self.predictor_parameters)
         self.page = Pages.TURBINES
 
     def select_turbines(self):
-        return NotImplementedError()
+        print('(f) Farm selection')
+        print('(m) Model selection')
+        print('(p) Predictor construction')
+        print('(q) Exit application')
+        
+        targets = []
+        while True:
+            print('Enter target turbine IDs separated by commas: ')
+            try:
+                user_input = input()
+                if user_input == 'f':
+                    self.page = Pages.FARM
+                    return
+                if user_input == 'm':
+                    self.page = Pages.MODEL
+                    return
+                if user_input == 'p':
+                    self.page = Pages.PREDICTOR
+                    return
+                if user_input == 'q':
+                    self.page = Pages.EXIT
+                    return
+
+                user_targets = user_input.replace(' ', '').split(',')
+                for user_target in user_targets:
+                    targets.append(int(user_target))
+
+                self.targets = targets
+                self.page = Pages.RESULTS
+                
+                break
+            except ValueError:
+                print('Invalid target.')
+
+        references = []
+        while True:
+            print('Enter reference turbine IDs separated by commas: ')
+            try:
+                user_input = input()
+                if user_input == 'f':
+                    self.page = Pages.FARM
+                    return
+                if user_input == 'm':
+                    self.page = Pages.MODEL
+                    return
+                if user_input == 'p':
+                    self.page = Pages.PREDICTOR
+                    return
+                if user_input == 'q':
+                    self.page = Pages.EXIT
+                    return
+
+                user_references = user_input.replace(' ', '').split(',')
+                for user_reference in user_references:
+                    references.append(int(user_reference))
+
+                self.references = references
+                self.page = Pages.RESULTS
+
+                break
+            except ValueError:
+                print('Invalid references.')
+
+        times = []
+        while True:
+            print('Enter times in ISO format YYYY-MMM-DD HH:MM:SS separated by commas: ')
+            try:
+                user_input = input()
+                if user_input == 'f':
+                    self.page = Pages.FARM
+                    return
+                if user_input == 'm':
+                    self.page = Pages.MODEL
+                    return
+                if user_input == 'p':
+                    self.page = Pages.PREDICTOR
+                    return
+                if user_input == 'q':
+                    self.page = Pages.EXIT
+                    return
+
+                user_times = re.sub(r',\s*', user_input, ',').split(',')
+                for user_time in user_times:
+                    times.append(datetime.datetime.fromisoformat(user_time))
+
+                self.times = times 
+                self.page = Pages.RESULTS
+
+                break
+            except ValueError:
+                print('Invalid times.')
 
     def display_results(self):
-        results = self.predictor.predict(self.data, self.targets, 
-                self.references, self.times)
-        return NotImplementedError()
+        print(self.predictor.predict(self.data, self.targets, self.references,
+            self.times))
 
 
 class Pages(Enum):
