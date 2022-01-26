@@ -1,5 +1,5 @@
 from abc import abstractmethod
-
+import numpy as np
 
 class Predictor:
     """
@@ -47,4 +47,40 @@ class Predictor:
             At least one time doesn't exist in data. 
         """
         return NotImplementedError()
-        
+    
+    def predict_abs_error(self, data, targets, references, times=None):
+        """
+        Run the predict() function, and output it's results alongside
+        information about the error between prediction and target
+
+        Parameters
+        ----------
+        data : TurbineData 
+            Full turbine data for a particular farm.
+        targets : list[int]
+            List of target turbine IDs.
+        references : list[int]
+            List of reference turbine IDs.
+        times : list[str]
+            List of interested times (format 'DD-MMM-YYYY hh:mm:ss').
+
+        Returns
+        -------
+        target_powers : 2D array
+            True power of target turbines at given times.
+        predicted_powers : 2D array
+            Predicted power of target turbines at given times
+        abs_err : 2D array
+            Magnitude of difference between measured and predicted
+            turbine powers for target turbines
+        abs_err_turbine_average : 1D array
+            abs_err, but averaged over the target turbines
+
+        """
+
+
+        tar_powers,pred_powers = self.predict(data,targets,references,times)
+        abs_err = np.abs(tar_powers-pred_powers)
+        abs_err_turbine_average = np.mean(abs_err,axis=-1)
+        return tar_powers,pred_powers,abs_err,abs_err_turbine_average
+
