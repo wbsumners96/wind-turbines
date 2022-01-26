@@ -22,6 +22,7 @@
 - [x] refactor code to PEP8 conventions
 - [x] add info from meeting notes to README
 - [ ] create UML diagram
+
 incorporate modification dates
 - [ ] create mathematical representation of incorporation
 - [ ] design/write pseudocode for implementation
