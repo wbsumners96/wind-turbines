@@ -180,9 +180,17 @@ class TurbinatorApp:
         
         targets = []
         while True:
-            print('Enter target turbine IDs separated by commas: ')
+            print('Enter target turbine IDs separated by commas: ', end='')
+            if len(self.targets) != 0:
+                print('(', end='')
+                print(*self.targets, sep=', ')
+                print(')')
+            else:
+                print()
             try:
                 user_input = input()
+                if user_input == '':
+                    return
                 if user_input == 'f':
                     self.page = Pages.FARM
                     return
@@ -209,9 +217,17 @@ class TurbinatorApp:
 
         references = []
         while True:
-            print('Enter reference turbine IDs separated by commas: ')
+            print('Enter reference turbine IDs separated by commas: ', end='')
+            if len(self.references) != 0:
+                print('(', end='')
+                print(*self.references, sep=', ')
+                print(')')
+            else:
+                print()
             try:
                 user_input = input()
+                if user_input == '':
+                    return
                 if user_input == 'f':
                     self.page = Pages.FARM
                     return
@@ -238,9 +254,18 @@ class TurbinatorApp:
 
         times = []
         while True:
-            print('Enter times in ISO format YYYY-MMM-DD HH:MM:SS separated by commas: ')
+            print('Enter times in ISO format YYYY-MM-DD HH:MM:SS separated by\
+                    commas: ', end='')
+            if len(self.times) != 0:
+                print('(', end='')
+                print(*self.times, sep=', ')
+                print(')')
+            else:
+                print()
             try:
                 user_input = input()
+                if user_input == '':
+                    return
                 if user_input == 'f':
                     self.page = Pages.FARM
                     return
@@ -266,8 +291,12 @@ class TurbinatorApp:
                 print('Invalid times.')
 
     def display_results(self):
+        iso_times = []
+        for time in self.times:
+            iso_time = time.strftime(r'%Y-%b-%d %H:%M:%S')
+            iso_times.append(iso_time)
         print(self.predictor.predict(self.data, self.targets, self.references,
-            self.times))
+            iso_times))
 
 
 class Pages(Enum):
