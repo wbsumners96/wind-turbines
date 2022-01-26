@@ -14,9 +14,9 @@ class WeightedAverage(Predictor):
         Calls predict_tensor or predict_pd depending on datatype
         """
         if data.datatype=="pd.DataFrame":
-            return predict_pd(data,targets,references,times)
+            return self.predict_pd(data,targets,references,times)
         if data.datatype=="np.ndarray":
-            return predict_tensor(data,targets,references)
+            return self.predict_tensor(data,targets,references)
 
     def predict_tensor(self,data,tar_mask,ref_mask,verbose=False):
         """
@@ -26,7 +26,7 @@ class WeightedAverage(Predictor):
 
         Parameters
         ----------
-        data : numpy.ndarray
+        data : TurbineData (with numpy.ndarray data)
             Wind turbine data.
         targets : list of int
             ID of target turbine.
@@ -65,7 +65,7 @@ class WeightedAverage(Predictor):
         # Calculate euclidean distance between all target-reference pairs
         ds = np.sqrt(np.sum((tar_pos[:,np.newaxis,:]-ref_pos)**2,axis=-1))
 
-        ws = np.vectorize(weighting)(ds)
+        ws = np.vectorize(self.weighting)(ds)
         if verbose:
             plt.imshow(ws)
             plt.title('Weight matrix')
@@ -91,7 +91,7 @@ class WeightedAverage(Predictor):
 
         Parameters
         ----------
-        data : pd.DataFrame
+        data : TurbineData (with pd.DataFrame data)
             Wind turbine data.
         weighting : (distance: positive real float) -> positive real float
             Function that determines the coefficient of linear combination.
