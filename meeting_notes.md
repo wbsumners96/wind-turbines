@@ -10,23 +10,22 @@
 
 # Tasks
 ## Alex
-- [x] fill out the corrected [doodle poll](https://doodle.com/poll/envaniqyhsn8crah?utm_source=poll&utm_medium=link)
 - [x] implement most basic model of predicting wind turbine power. Take weighted average of all other wind turbines at given timestep. Weight according to relative distance. General and efficient code, can be easily extended
 - [x] load data as a 3D tensor, generalise weighted average to work in parallel across time axis
 
 ## Billy
-- [x] fill out the corrected [doodle poll](https://doodle.com/poll/envaniqyhsn8crah?utm_source=poll&utm_medium=link)
 - [ ] create ui (for the purpose of only having to load the data once)
 - [ ] develop a predictor class to provide a common interface for different models
 - [ ] incorporate wind direction
 
 ## Mary
-- [x] create doodle poll
-- [x] fix zoom meeting issues
-- [x] correct time zone on doodle poll
-- [x] fill out the corrected [doodle poll](https://doodle.com/poll/envaniqyhsn8crah?utm_source=poll&utm_medium=link)
 - [x] refactor code to PEP8 conventions
 - [x] add info from meeting notes to README
+- [ ] create UML diagram
+incorporate modification dates
+- [ ] create mathematical representation of incorporation
+- [ ] design/write pseudocode for implementation
+- [ ] implement the incorporation of modification dates
 
 ## TBD
 - [ ] determine and develop an approach to testing method accuracy
@@ -35,7 +34,7 @@
 - [ ] incorporate neighboring times
 - [ ] incorporate turbulence intensity (TI)
 - [ ] learn how to determine reference turbines
-- [ ] incorporate modification dates
+- [ ] add file info to README
 
 # Meeting Notes
 ## 13 January 2022
