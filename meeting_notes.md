@@ -57,5 +57,9 @@ incorporate modification dates
 - we can take the turbine angle to be the same as the wind direction
 - look at different wind turbulence intensities
 
-## Upcoming Meeting: Thursday 27 January 09:00
+## 27 January 2022
+- method for testing the accuracy of the models: graph power bins vs delta, where delta is the difference between the modeled power output and the measured power output and has uncertainty
+- simplify the problem by looking only at data where the wind is coming from the dominant direction and the group of target turbines is not blocked by other turbines
+
+## Upcoming Meeting: Thursday 3 February 09:00
 ### Questions
