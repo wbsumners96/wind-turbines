@@ -119,6 +119,7 @@ class WeightedAverage(Predictor):
         # First learn the type of the data
         if data.datatype!='pd.DataFrame':
             raise TypeError('Data must be pandas dataframe')
+
         data = data.data
         first_id = data['instanceID'][0]
         if first_id.startswith('ARD'):
@@ -134,7 +135,9 @@ class WeightedAverage(Predictor):
                          for reference in references]
 
         # Restrict data to given time and separate into targets and references
-        current_data = data.query('ts == @time')
+        print(times)
+        current_data = data.query('ts == @times')
+        print(current_data)
         target_data = current_data.query('instanceID == @target_ids')
         reference_data = current_data.query('instanceID == @reference_ids')
 

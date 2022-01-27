@@ -9,7 +9,7 @@ class TestModel(Predictor):
         self.funniness = funniness
 
     def predict(self, data, targets, references, times):
-        pass
+        print(targets, references, times)
 
     def __str__(self):
         return f'i have {self.funniness} funny points'
