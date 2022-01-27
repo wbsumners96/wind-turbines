@@ -196,4 +196,4 @@ def weighted_average(data, weighting, tar_mask, ref_mask,verbose=False):
 	vf = np.vectorize(f)
 	pred_power = np.einsum('ij, kj->ki', ws, ref_power)/np.sum(ws, axis=1)
 	
-	return pred_power, tar_power
+	return tar_power, pred_power

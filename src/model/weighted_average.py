@@ -43,6 +43,7 @@ class WeightedAverage(Predictor):
         """
         # Generate string IDs of turbines
         # First learn the type of the data
+        data = data.data
         first_id = data['instanceID'][0]
         if first_id.startswith('ARD'):
             type = 'ARD'
@@ -57,7 +58,9 @@ class WeightedAverage(Predictor):
                          for reference in references]
 
         # Restrict data to given time and separate into targets and references
-        current_data = data.query('ts == @time')
+        print(times)
+        current_data = data.query('ts == @times')
+        print(current_data)
         target_data = current_data.query('instanceID == @target_ids')
         reference_data = current_data.query('instanceID == @reference_ids')
 

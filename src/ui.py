@@ -254,8 +254,8 @@ class TurbinatorApp:
 
         times = []
         while True:
-            print('Enter times in ISO format YYYY-MM-DD HH:MM:SS separated by\
-                    commas: ', end='')
+            print('Enter times in ISO format YYYY-MM-DD HH:MM:SS separated by \
+commas: ', end='')
             if len(self.times) != 0:
                 print('(', end='')
                 print(*self.times, sep=', ')
@@ -293,7 +293,7 @@ class TurbinatorApp:
     def display_results(self):
         iso_times = []
         for time in self.times:
-            iso_time = time.strftime(r'%Y-%b-%d %H:%M:%S')
+            iso_time = time.strftime(r'%d-%b-%Y %H:%M:%S')
             iso_times.append(iso_time)
         print(self.predictor.predict(self.data, self.targets, self.references,
             iso_times))
