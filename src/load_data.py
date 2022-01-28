@@ -86,7 +86,7 @@ class TurbineData:
             n_turbines = 39
         data_tensor = data_numpy.reshape((n_turbines,-1,15))
         data_tensor = np.einsum("ijk->jik",data_tensor)
-        print(data_tensor.shape)
+        #print(data_tensor.shape)
         mask = np.array([0,0,1,1,1,1,1,0,0,1,1,1,1,1,1],dtype=bool)
         self.data = data_tensor[:,:,mask].astype(float)
         self.data_label = data_tensor[:,:,:2]
@@ -132,7 +132,50 @@ class TurbineData:
             return data[data.instanceID == data.instanceID[turbine]]
         elif self.datatype=="np.ndarray":
             self.data = data[:,turbine]
-    
+    def select_wind_direction(self,direction,width,verbose=False):
+        """
+        Selects only times when the average wind direction is 
+        within "width" of "direction"
+
+        Parameters
+        ----------
+        direction : float (0,360)
+            Average wind direction desired
+        width : float 
+            How far from the average wind direction is okay
+        verbose : bool
+            Print things
+
+
+        """  
+
+        if self.datatype=="pd.DataFrame":
+            raise TypeError("Data needs to be in numpy array, call .to_tensor() first")
+        data = self.data
+        wind_dir_mean = np.mean(data[:,:,4],axis=1)
+        diff = np.abs(wind_dir_mean-direction)
+        wind_diff = np.minimum(360-diff,diff) # corrected for modular nature of angles
+        wind_mask = wind_diff<width
+        self.data = data[wind_mask]
+        self.data_label = self.data_label[wind_mask]
+
+
+    def select_normal_operation_times(self):
+        """
+        Removes times where any turbine is not functioning normaly.
+        Best to run after running select turbines
+
+        """
+        print(self.data.shape)
+        flag = np.all((self.data[:,:,-1]).astype(bool),axis=1)
+        self.data = self.data[flag]
+        self.data_label = self.data_label[flag]
+        print(self.data.shape)
+        #print(flag.shape)
+        #data_flat = self.data.reshape
+        #shape = self.data.shape
+        #self.data = (self.data.reshape(-1,shape[2])[flag]).reshape(shape)
+
 def load_data(path: str, data_type: str, flag: bool = False):
 
     """
