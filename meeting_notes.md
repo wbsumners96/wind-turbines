@@ -12,7 +12,7 @@
 ## Alex
 - [x] implement most basic model of predicting wind turbine power. Take weighted average of all other wind turbines at given timestep. Weight according to relative distance. General and efficient code, can be easily extended
 - [x] load data as a 3D tensor, generalise weighted average to work in parallel across time axis
-
+- [x] determine and develop an approach to testing method accuracy
 ## Billy
 - [ ] create ui (for the purpose of only having to load the data once)
 - [ ] develop a predictor class to provide a common interface for different models
@@ -29,7 +29,7 @@ incorporate modification dates
 - [ ] implement the incorporation of modification dates
 
 ## TBD
-- [ ] determine and develop an approach to testing method accuracy
+
 - [ ] tweak weighting function
 - [ ] tweak nonlinearity function $f(power)$
 - [ ] incorporate neighboring times

@@ -53,11 +53,19 @@ def direction_power_histogram(data):
 	----------
 	data : pd.DataFrame
 	"""
+	
+
 	if data.datatype=="np.ndarray":
-		raise TypeError("Data needs to be in pd.DataFrame format")
-	data = data.data
+		_dir = data.data[:,:,4].reshape(-1)
+		_pow = data.data[:,:,2].reshape(-1)
+		data_np = np.stack((_dir,_pow),axis=-1)
+		print(data_np.shape)
+	if data.datatype=="pd.DataFrame":
+		data_np = data.data[['Wind_direction_calibrated', 'Power']].to_numpy()
+		print(data_np.shape)
+
 	n_bins = 100
-	data_np = data[['Wind_direction_calibrated', 'Power']].to_numpy()
+	
 	print(np.nanmax(data_np[:,0]))
 	
 	hist, xedges, yedges = np.histogram2d(
