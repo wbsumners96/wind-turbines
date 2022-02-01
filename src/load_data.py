@@ -5,8 +5,8 @@ import numpy as np
 class TurbineData:
     def __init__(self, path, data_type):
         """
-        Class constructor to load wind turbine data, relative position data and 
-        normal operation flags.
+        Class constructor to load wind turbine data, relative position data
+		and normal operation flags.
         
         Parameters
         ----------
@@ -31,10 +31,10 @@ class TurbineData:
         pos_file = data_type + '_Turbine_Positions.csv'
         pos = pd.read_csv(os.path.join(path, pos_file))
 
-        #if flag:
-        #    data = data.join(normal_operation, lsuffix='', rsuffix='f')
-        #    # Added as removing the flagged data messes up the data indexing
-        #    data.reset_index(drop=True,inplace=True)
+        # if flag:
+        #     data = data.join(normal_operation, lsuffix='', rsuffix='f')
+        #     # Added as removing the flagged data messes up data indexing
+        #     data.reset_index(drop=True,inplace=True)
 
         data_joined = pd.merge(data, 
                                pos, 
@@ -53,10 +53,11 @@ class TurbineData:
 
     def to_tensor(self):
         """
-        Converts pd.dataframe to 2 rank 3 tensors, indexed by time, turbine and 
-        attribute
+        Converts pd.dataframe to 2 rank 3 tensors.
+
         One tensor is a float containing all the actual data,
-        one is of strings containing labels of datatime and turbine
+        one is of strings containing labels of datatime and turbine. Rank 3
+		tensors are indexed by time, turbine and attribute.
         ----------
         self.data is now an array indexed as follows:
         data[time,turbine,attribute]
