@@ -10,18 +10,16 @@
 
 # Tasks
 ## Alex
-- [x] implement most basic model of predicting wind turbine power. Take weighted average of all other wind turbines at given timestep. Weight according to relative distance. General and efficient code, can be easily extended
-- [x] load data as a 3D tensor, generalise weighted average to work in parallel across time axis
 - [x] determine and develop an approach to testing method accuracy
 ## Billy
 - [ ] create ui (for the purpose of only having to load the data once)
-- [ ] develop a predictor class to provide a common interface for different models
+- [ ] develop a predictor class to provide a common interface for different
+	  models
 - [ ] incorporate wind direction
 
 ## Mary
-- [x] refactor code to PEP8 conventions
-- [x] add info from meeting notes to README
-- [ ] create UML diagram
+- [x] create UML diagram
+- [ ] implement proposed MVC structure
 
 incorporate modification dates
 - [ ] create mathematical representation of incorporation
@@ -39,27 +37,38 @@ incorporate modification dates
 
 # Meeting Notes
 ## 13 January 2022
-- **project goal**: predict the power of a target wind turbine based on reference turbines
-- wind speed is not always a useful predictor since there is so much variability and uncertainty involved in its measurement
+- **project goal**: predict the power of a target wind turbine based on
+  reference turbines
+- wind speed is not always a useful predictor since there is so much
+  variability and uncertainty involved in its measurement
 - standard minimum is 4 target wind turbines and 4 reference wind turbines
-- data is recorded with 10 minute resolution (the average of each 10 minute interval)
+- data is recorded with 10 minute resolution (the average of each 10 minute
+  interval)
 
 ## 20 January 2022
 - ARD and CAU are the wind farm codes
-- Sometimes validity of the prediction may be affected if most of the operating predictors are far away
+- Sometimes validity of the prediction may be affected if most of the
+  operating predictors are far away
 - `TI` is turbulence intensity and is non-dimensional
 - wind speed is measured in meters per second
 - power is measured in kilowatts
 - calibrated wind direction is relative to true north
 - altitude is measured in meters
-- since you cannot accurately measure the resource that produces the power (the wind speed), the goal is to predict the power output following a configuration change/upgrade which you would expect to change the performance of the wind turbine
+- since you cannot accurately measure the resource that produces the power
+  (the wind speed), the goal is to predict the power output following a
+  configuration change/upgrade which you would expect to change the
+  performance of the wind turbine
 - CAU has no 11, 12, 13 turbines
 - we can take the turbine angle to be the same as the wind direction
 - look at different wind turbulence intensities
 
 ## 27 January 2022
-- method for testing the accuracy of the models: graph power bins vs delta, where delta is the difference between the modeled power output and the measured power output and has uncertainty
-- simplify the problem by looking only at data where the wind is coming from the dominant direction and the group of target turbines is not blocked by other turbines
+- method for testing the accuracy of the models: graph power bins vs delta,
+  where delta is the difference between the modeled power output and the
+  measured power output and has uncertainty
+- simplify the problem by looking only at data where the wind is coming
+  from the dominant direction and the group of target turbines is not
+  blocked by other turbines
 
 ## Upcoming Meeting: Thursday 3 February 09:00
 ### Questions
