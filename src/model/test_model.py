@@ -13,4 +13,3 @@ class TestModel(Predictor):
 
     def __str__(self):
         return f'i have {self.funniness} funny points'
-

@@ -1,6 +1,7 @@
 from abc import abstractmethod
 import numpy as np
 
+
 class Predictor:
     """
     A predictor is an instance of a model, and is an object which should be
@@ -16,12 +17,12 @@ class Predictor:
     @abstractmethod
     def predict(self, data, targets, references, times):
         """
-        Predict the output power of a given set of target turbines given a 
+        Predict the output power of a given set of target turbines given a
         separate set of reference turbines at a collection of times.
 
         Parameters
         ----------
-        data : TurbineData 
+        data : TurbineData
             Full turbine data for a particular farm.
         targets : list[int]
             List of target turbine IDs.
@@ -44,10 +45,10 @@ class Predictor:
         MissingTurbineError
             At least one target or reference turbine ID doesn't exist in data.
         MissingTimeError
-            At least one time doesn't exist in data. 
+            At least one time doesn't exist in data.
         """
         return NotImplementedError()
-    
+
     def predict_abs_error(self, data, targets, references, times=None):
         """
         Run the predict() function, and output it's results alongside
@@ -55,7 +56,7 @@ class Predictor:
 
         Parameters
         ----------
-        data : TurbineData 
+        data : TurbineData
             Full turbine data for a particular farm.
         targets : list[int]
             List of target turbine IDs.
@@ -78,9 +79,8 @@ class Predictor:
 
         """
 
-
-        tar_powers,pred_powers = self.predict(data,targets,references,times)
-        abs_err = np.abs(tar_powers-pred_powers)
-        abs_err_turbine_average = np.mean(abs_err,axis=-1)
-        return tar_powers,pred_powers,abs_err,abs_err_turbine_average
-
+        tar_powers, pred_powers = self.predict(
+            data, targets, references, times)
+        abs_err = np.abs(tar_powers - pred_powers)
+        abs_err_turbine_average = np.mean(abs_err, axis=-1)
+        return tar_powers, pred_powers, abs_err, abs_err_turbine_average
