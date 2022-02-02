@@ -12,8 +12,8 @@
 ## Alex
 - [x] determine and develop an approach to testing method accuracy
 ## Billy
-- [ ] create ui (for the purpose of only having to load the data once)
-- [ ] develop a predictor class to provide a common interface for different
+- [x] create ui (for the purpose of only having to load the data once)
+- [x] develop a predictor class to provide a common interface for different
 	  models
 - [ ] incorporate wind direction
 
@@ -32,8 +32,11 @@ incorporate modification dates
 - [ ] tweak nonlinearity function $f(power)$
 - [ ] incorporate neighboring times
 - [ ] incorporate turbulence intensity (TI)
-- [ ] learn how to determine reference turbines
+- [-] learn how to determine reference turbines
 - [ ] add file info to README
+- [ ] from the measurements given by the turbines at a given time, what's the
+  best way to get an "agreed" measurement for e.g. wind speed, wind direction.
+  mode/mean/hypermean/stock prices?
 
 # Meeting Notes
 ## 13 January 2022
@@ -72,3 +75,14 @@ incorporate modification dates
 
 ## Upcoming Meeting: Thursday 3 February 09:00
 ### Questions
+- In the config changes file, it specifies there's a "Baseline config up to"
+  some date, and upgrades from/to some other date. Problem is, these dates never
+  match, so there's an interval of time where the turbine doesn't seem to have
+  any configuration at all. Is this just a period where upgrades are being
+  applied, so should we completely ignore the turbine during these periods?
+    - Follow up: if so, does N/A mean the turbine is completely useless after
+      the baseline config finishing day?
+- Related to that, what times in the day should we take the configuration being
+  available from/to? Say, if it says the baseline config is up to August 1 2019,
+  should we interpret that as meaning the baseline config is up until midnight
+  the following day?
