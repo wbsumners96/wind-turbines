@@ -61,7 +61,7 @@ class WeightedAverage(Predictor):
         ref_power = refs[:, :, 2]
 
         # Calculate euclidean distance between all target-reference pairs
-        ds = np.sqrt(np.sum((tar_pos[:, np.newaxis, :] - ref_pos)**2, axis=-1))
+        ds = np.sqrt(np.sum((tar_pos[:, np.newaxis, :]-ref_pos)**2, axis=-1))
 
         ws = np.vectorize(self.weighting)(ds)
         if verbose:
@@ -74,8 +74,7 @@ class WeightedAverage(Predictor):
             return power
 
         vf = np.vectorize(f)
-        pred_power = np.einsum(
-            'ij, kj->ki', ws, ref_power) / np.sum(ws, axis=1)
+        pred_power = np.einsum('ij, kj->ki', ws, ref_power)/np.sum(ws, axis=1)
 
         return pred_power, tar_power
 
@@ -161,6 +160,6 @@ class WeightedAverage(Predictor):
 class GaussianWeightedAverage(WeightedAverage):
     def __init__(self, gamma):
         def weighting(distance):
-            return np.exp(-gamma * distance * distance)
+            return np.exp(-gamma*distance*distance)
 
         super().__init__(weighting)

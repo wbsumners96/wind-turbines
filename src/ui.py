@@ -18,22 +18,22 @@ class TurbinatorApp:
         self.predictor_parameters = {}
         self.predictor = None
         self.data = None
-        self.farm = ''
+        self.farm = '' 
         self.targets = []
         self.references = []
         self.times = []
         self.page = Pages.FARM
 
     def run(self):
-        self.app_config = {
+        self.app_config = { 
             'title': 'TURBINATOR',
             'data_path': '~/Documents/Semester 2/TurbineProject/Data',
         }
 
         farms = ['ARD', 'CAU']
-
+        
         print(self.app_config['title'])
-
+        
         while True:
             print(f'current page is {self.page}')
             if self.page == Pages.FARM:
@@ -61,7 +61,7 @@ class TurbinatorApp:
 
             user_selection = input()
             if user_selection == 'q':
-                self.page = Pages.EXIT
+                self.page = Pages.EXIT 
 
                 return
             try:
@@ -69,26 +69,25 @@ class TurbinatorApp:
                 if selected_index in range(1, len(farms) + 1):
                     self.page = Pages.LOAD_DATA
                     self.farm = farms[selected_index - 1]
-
+                    
                     return
                 print('Selected index out of range.\n')
             except ValueError:
                 print('Invalid selection.\n')
 
     def load_data(self):
-        loading_complete = False
-
+        loading_complete = False 
         def show_loading_animation():
             for c in itertools.cycle(['⠟', '⠯', '⠷', '⠾', '⠽', '⠻']):
                 if loading_complete:
                     break
-
+                
                 sys.stdout.write('\r' + c + ' Loading turbine data...')
                 sys.stdout.flush()
-
+                
                 time.sleep(0.1)
 
-        animation_thread = threading.Thread(target=show_loading_animation)
+        animation_thread = threading.Thread(target = show_loading_animation)
         animation_thread.start()
 
         self.data = TurbineData(self.app_config['data_path'], self.farm)
@@ -102,7 +101,7 @@ class TurbinatorApp:
 
         self.page = Pages.MODEL
 
-    def select_model(self, models):
+    def select_model(self, models): 
         while True:
             print('Choose from the following available models: ')
             for i, model in enumerate(models):
@@ -126,7 +125,7 @@ class TurbinatorApp:
                     if selected_model != self.model:
                         self.model = models[selected_index - 1]
                         self.predictor_parameters = {}
-
+                    
                     self.page = Pages.PREDICTOR
 
                     return
@@ -137,17 +136,17 @@ class TurbinatorApp:
     def create_predictor(self):
         print(self.model.__init__.__doc__)
 
-        print("""Enter parameters for selected model, or enter (f) to go back
-              to farm selection, (m) to go back to model selection, and (q) to
-              exit the application. Hit Return to use the currently saved
+        print("""Enter parameters for selected model, or enter (f) to go back 
+              to farm selection, (m) to go back to model selection, and (q) to 
+              exit the application. Hit Return to use the currently saved 
               parameter if available (in parentheses).""")
         for parameter in inspect.signature(self.model.__init__).parameters\
                 .keys():
             if parameter == 'self':
-                continue
+                continue 
             while True:
                 current_value = f'({self.predictor_parameters[parameter]})' if \
-                    parameter in self.predictor_parameters else ''
+                        parameter in self.predictor_parameters else ''
                 print(f'{parameter}: {current_value} ', end='')
                 user_param = input()
                 if user_param == 'f':
@@ -164,8 +163,7 @@ class TurbinatorApp:
                     return
                 if user_param != '':
                     try:
-                        self.predictor_parameters[parameter] = float(
-                            user_param)
+                        self.predictor_parameters[parameter] = float(user_param)
                         break
                     except ValueError:
                         print('Invalid float value provided.')
@@ -179,7 +177,7 @@ class TurbinatorApp:
         print('(m) Model selection')
         print('(p) Predictor construction')
         print('(q) Exit application')
-
+        
         targets = []
         while True:
             print('Enter target turbine IDs separated by commas: ', end='')
@@ -212,7 +210,7 @@ class TurbinatorApp:
 
                 self.targets = targets
                 self.page = Pages.RESULTS
-
+                
                 break
             except ValueError:
                 print('Invalid target.')
@@ -285,7 +283,7 @@ commas: ', end='')
                 for user_time in user_times:
                     times.append(datetime.datetime.fromisoformat(user_time))
 
-                self.times = times
+                self.times = times 
                 self.page = Pages.RESULTS
 
                 break
@@ -298,7 +296,7 @@ commas: ', end='')
             iso_time = time.strftime(r'%d-%b-%Y %H:%M:%S')
             iso_times.append(iso_time)
         print(self.predictor.predict(self.data, self.targets, self.references,
-                                     iso_times))
+            iso_times))
 
 
 class Pages(Enum):
@@ -314,3 +312,4 @@ class Pages(Enum):
 if __name__ == '__main__':
     app = TurbinatorApp({})
     app.run()
+
