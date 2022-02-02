@@ -50,6 +50,7 @@ class TurbineData:
         self.data = data_complete
         self.farm = data_type
         self.datatype = "pd.DataFrame"
+        
 
     def to_tensor(self):
         """
@@ -115,7 +116,7 @@ class TurbineData:
             self.data = data[time]
     def select_turbine(self, turbine, verbose=False):
         """
-        Return the data for one wind turbine across all times.
+        Return the data for one wind turbine (or a set of turbines) across all times.
 
         Parameters
         ----------
@@ -161,21 +162,37 @@ class TurbineData:
         self.data_label = self.data_label[wind_mask]
 
 
-    def select_normal_operation_times(self):
+    def select_normal_operation_times(self,verbose=False):
         """
         Removes times where any turbine is not functioning normaly.
         Best to run after running select turbines
 
         """
-        print(self.data.shape)
+        if verbose:
+            print("Data shape before selecting normal operation turbines: "+str(self.data.shape))
         flag = np.all((self.data[:,:,-1]).astype(bool),axis=1)
         self.data = self.data[flag]
         self.data_label = self.data_label[flag]
-        print(self.data.shape)
+        if verbose:
+            print("Data shape after selecting normal operation turbines: "+str(self.data.shape))
         #print(flag.shape)
         #data_flat = self.data.reshape
         #shape = self.data.shape
         #self.data = (self.data.reshape(-1,shape[2])[flag]).reshape(shape)
+
+    def select_unsaturated_times(self,cutoff=1900,verbose=False):
+        """
+        Removes times where any turbine is obviously saturated in the power curve.
+        Best to run after running select turbines
+        """
+        if verbose:
+            print("Data shape before selecting unsaturated turbines: "+str(self.data.shape))
+        flag = np.all((self.data[:,:,2]<cutoff).astype(bool),axis=1)
+        self.data = self.data[flag]
+        self.data_label = self.data_label[flag]
+        if verbose:
+            print("Data shape after selecting unsaturated turbines: "+str(self.data.shape))
+
 
 def load_data(path: str, data_type: str, flag: bool = False):
 
