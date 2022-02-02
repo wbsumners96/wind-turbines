@@ -8,6 +8,7 @@ from model import models
 
 
 def main():
+<<<<<<< HEAD
     data_path = '~/Documents/academia/current_courses/wind_project/DataPack'
     farm_options = ['ARD', 'CAU']
 
@@ -314,6 +315,3 @@ def select_predictor_parameters(app):
 
         predictor_parameters.append(user_parameters)
     return predictor_parameters
-
-
-main()

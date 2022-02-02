@@ -7,7 +7,9 @@ class WeightedAverage(Predictor):
     def __init__(self, weighting):
         self.weighting = weighting
 
-    def predict(self, data, targets, references, times=None):
+
+
+    def predict(self,data,targets,references,times=None):
         """
         Calls predict_tensor or predict_pd depending on datatype
         """
@@ -16,11 +18,11 @@ class WeightedAverage(Predictor):
         if data.data_type == "np.ndarray":
             return self.predict_tensor(data, targets, references)
 
-    def predict_tensor(self, data, tar_mask, ref_mask, verbose=False):
+    def predict_tensor(self,data,tar_mask,ref_mask,verbose=False):
         """
         Predict the power of the specified wind turbines.
         Needs data as a numpy array, parallel over time axis
-
+        
 
         Parameters
         ----------
@@ -45,44 +47,44 @@ class WeightedAverage(Predictor):
             raise TypeError('Data must be numpy array, run .to_tensor() first')
         data = data.data
 
-        tars = data[:, tar_mask]
-        refs = data[:, ref_mask]
+        tars = data[:,tar_mask]
+        refs = data[:,ref_mask]
 
-        if not np.all(tars[:, -1]):
+        if not np.all(tars[:,-1]):
             print("Warning: some target turbines are faulty")
-        if not np.all(refs[:, -1]):
+        if not np.all(refs[:,-1]):
             print("Warning: some reference turbines are faulty")
 
         # Position data
-        tar_pos = tars[0, :, 5:6]  # turbines don't move
-        ref_pos = refs[0, :, 5:6]
+        tar_pos = tars[0,:,5:6] # turbines don't move
+        ref_pos = refs[0,:,5:6]
         # Power data
-        tar_power = tars[:, :, 2]
-        ref_power = refs[:, :, 2]
+        tar_power = tars[:,:,2]
+        ref_power = refs[:,:,2]
 
         # Calculate euclidean distance between all target-reference pairs
-        ds = np.sqrt(np.sum((tar_pos[:, np.newaxis, :] - ref_pos)**2, axis=-1))
+        ds = np.sqrt(np.sum((tar_pos[:,np.newaxis,:]-ref_pos)**2,axis=-1))
 
         ws = np.vectorize(self.weighting)(ds)
         if verbose:
             plt.imshow(ws)
             plt.title('Weight matrix')
             plt.show()
+        
 
         def f(power):
-            # Dummy function to change later if we want something more complex
+            # Dummy function to change later if we want something more complex 
             return power
 
         vf = np.vectorize(f)
-        pred_power = np.einsum(
-            'ij, kj->ki', ws, ref_power) / np.sum(ws, axis=1)
-
+        pred_power = np.einsum('ij, kj->ki', ws, ref_power)/np.sum(ws, axis=1)
+        
         return pred_power, tar_power
 
     def predict_pd(self, data, targets, references, times):
         """
         Predict the power of the target turbine at the specified time.
-
+    
         The power is predicted by taking a weighted average of the powers of the
         given reference turbines at that time. The coefficients in the weighted
         average are given by a function of distance from the target turbine.
@@ -129,7 +131,7 @@ class WeightedAverage(Predictor):
 
         # Target_id = f'{type}_WTG{target:02d}'
         target_ids = [f'{type}_WTG{target:02d}' for target in targets]
-        reference_ids = [f'{type}_WTG{reference:02d}'
+        reference_ids = [f'{type}_WTG{reference:02d}' 
                          for reference in references]
 
         # Restrict data to given time and separate into targets and references
@@ -141,19 +143,18 @@ class WeightedAverage(Predictor):
 
         # Get vector of distances from target turbines to reference turbines
         target_positions = target_data[['Easting', 'Northing']].to_numpy()
-        reference_positions = reference_data[[
-            'Easting', 'Northing']].to_numpy()
+        reference_positions = reference_data[['Easting', 'Northing']].to_numpy()
 
-        distances = np.sqrt(np.sum((target_positions[:, np.newaxis, :]
+        distances = np.sqrt(np.sum((target_positions[:,np.newaxis,:]
                                    - reference_positions) ** 2, axis=-1))
         # Get vector of weights
         weights = np.vectorize(self.weighting)(distances)
-
+        
         # Calculate predicted power as w_1 f(p_1) + ... + w_n f(p_n)
         target_powers = target_data['Power'].to_numpy()
         reference_powers = reference_data['Power'].to_numpy()
         predicted_powers = np.einsum('ij, j->i', weights, reference_powers) \
-            / np.sum(weights, axis=1)
+                           / np.sum(weights, axis=1)
 
         return predicted_powers, target_powers
 
@@ -161,6 +162,6 @@ class WeightedAverage(Predictor):
 class GaussianWeightedAverage(WeightedAverage):
     def __init__(self, gamma):
         def weighting(distance):
-            return np.exp(-gamma * distance * distance)
+            return np.exp(-gamma*distance*distance)
 
         super().__init__(weighting)
