@@ -49,7 +49,6 @@ class TurbineData:
         self.farm = farm
         self.data = data_complete
         self.data_type = 'pd.DataFrame'
-        self.to_tensor()
 
     def to_tensor(self):
         """
@@ -84,14 +83,14 @@ class TurbineData:
         if self.farm == "ARD":
             n_turbines = 15
         elif self.farm == "CAU":
-            n_turbines = 39
+            n_turbines = 21
         data_tensor = data_numpy.reshape((n_turbines,-1,15))
         data_tensor = np.einsum("ijk->jik",data_tensor)
         #print(data_tensor.shape)
         mask = np.array([0,0,1,1,1,1,1,0,0,1,1,1,1,1,1],dtype=bool)
         self.data = data_tensor[:,:,mask].astype(float)
         self.data_label = data_tensor[:,:,:2]
-        self.datatype = "np.ndarray"
+        self.data_type = 'np.ndarray'
 
     def select_time(self, time, verbose=False):
         """
@@ -109,9 +108,9 @@ class TurbineData:
         data = self.data
         if verbose:
             print("Selected time: " + str(data.ts[time]))
-        if self.datatype=="pd.DataFrame":
+        if self.data_type=="pd.DataFrame":
             return data[data.ts == data.ts[time]]
-        elif self.datatype=="np.ndarray":
+        elif self.data_type=="np.ndarray":
             self.data = data[time]
     def select_turbine(self, turbine, verbose=False):
         """
@@ -129,9 +128,9 @@ class TurbineData:
         data = self.data
         if verbose:
             print("Selected turbine " + str(data.instanceID[turbine]))
-        if self.datatype=="pd.DataFrame":
+        if self.data_type=="pd.DataFrame":
             return data[data.instanceID == data.instanceID[turbine]]
-        elif self.datatype=="np.ndarray":
+        elif self.data_type=="np.ndarray":
             self.data = data[:,turbine]
     def select_wind_direction(self,direction,width,verbose=False):
         """
@@ -150,7 +149,7 @@ class TurbineData:
 
         """  
 
-        if self.datatype=="pd.DataFrame":
+        if self.data_type=="pd.DataFrame":
             raise TypeError("Data needs to be in numpy array, call .to_tensor() first")
         data = self.data
         wind_dir_mean = np.mean(data[:,:,4],axis=1)

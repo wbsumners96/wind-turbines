@@ -52,7 +52,7 @@ class TurbineApp:
 			for c in itertools.cycle(['⠟', '⠯', '⠷', '⠾', '⠽', '⠻']):
 				if loading_complete:
 					break
-                
+				
 				sys.stdout.write('\r' + c + ' Loading turbine data...')
 				sys.stdout.flush()
 				time.sleep(0.1)
@@ -61,11 +61,25 @@ class TurbineApp:
 		animation_thread.start()
 
 		self.data = TurbineData(self.data_path, self.farm)
-		sys.stdout.write('\rLoading complete.                        \n')
+		sys.stdout.write('\rLoading complete.						\n')
 		sys.stdout.flush()
 		loading_complete = True
+
 		print(self.data.data.info())
+		print('Converting to tensor...')
+		self.data.to_tensor()
+		print('Conversion successful.')
 	
+	def trim_data(self):
+		"""
+		Trims the data to only the times and turbines of interest.
+		"""
+		self.data.select_turbine(self.targets + self.references)
+		self.data.select_normal_operation_times()
+		self.data.select_unsaturated_times()
+		# self.data.select_time(self.times)
+		
+
 	def create_predictors(self):
 		"""
 		Creates predictor objects.
