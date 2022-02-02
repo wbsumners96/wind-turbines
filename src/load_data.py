@@ -4,7 +4,7 @@ import numpy as np
 
 
 class TurbineData:
-    def __init__(self, path, data_type):
+    def __init__(self, path, farm):
         """
         Class constructor to load wind turbine data, relative position data
                 and normal operation flags.
@@ -21,15 +21,15 @@ class TurbineData:
         TypeError
             If type is not 'ARD' or 'CAU'.
         """
-        if data_type not in ('ARD', 'CAU'):
-            raise TypeError('Argument \'data_type\' must be \'ARD\' or '
+        if farm not in ('ARD', 'CAU'):
+            raise TypeError('Argument \'farm\' must be \'ARD\' or '
                             + '\'CAU\'.')
 
-        data_file = data_type + '_Data.csv'
+        data_file = farm + '_Data.csv'
         data = pd.read_csv(os.path.join(path, data_file))
         assert isinstance(data, pd.DataFrame)
 
-        pos_file = data_type + '_Turbine_Positions.csv'
+        pos_file = farm + '_Turbine_Positions.csv'
         pos = pd.read_csv(os.path.join(path, pos_file))
 
         # if flag:
@@ -42,15 +42,16 @@ class TurbineData:
                                left_on=["instanceID"],
                                right_on=["Obstical"])
 
-        flag_file = data_type + '_Flag.csv'
+        flag_file = farm + '_Flag.csv'
         normal_operation = pd.read_csv(os.path.join(path, flag_file))
         data_complete = pd.merge(data_joined,
                                  normal_operation,
                                  on=["ts", "instanceID"])
 
+        self.farm = farm
         self.data = data_complete
-        self.farm = data_type
-        self.datatype = "pd.DataFrame"
+        self.data_type = 'pd.DataFrame'
+        self.to_tensor()
 
     def to_tensor(self):
         """

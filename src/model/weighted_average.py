@@ -11,9 +11,9 @@ class WeightedAverage(Predictor):
         """
         Calls predict_tensor or predict_pd depending on datatype
         """
-        if data.datatype == "pd.DataFrame":
+        if data.data_type == "pd.DataFrame":
             return self.predict_pd(data, targets, references, times)
-        if data.datatype == "np.ndarray":
+        if data.data_type == "np.ndarray":
             return self.predict_tensor(data, targets, references)
 
     def predict_tensor(self, data, tar_mask, ref_mask, verbose=False):
@@ -41,7 +41,7 @@ class WeightedAverage(Predictor):
             Measured power output of the target turbines.
         """
 
-        if data.datatype != 'np.ndarray':
+        if data.data_type != 'np.ndarray':
             raise TypeError('Data must be numpy array, run .to_tensor() first')
         data = data.data
 
@@ -103,10 +103,10 @@ class WeightedAverage(Predictor):
 
         Returns
         -------
-        target_power : numpy.ndarray (real numbers)
-            True power output of target turbines at given time.
         predicted_power : numpy.ndarray (real numbers)
             Predicted power output of the target turbines.
+        target_power : numpy.ndarray (real numbers)
+            True power output of target turbines at given time.
 
         Raises
         ------
@@ -115,7 +115,7 @@ class WeightedAverage(Predictor):
         """
         # Generate string IDs of turbines
         # First learn the type of the data
-        if data.datatype != 'pd.DataFrame':
+        if data.data_type != 'pd.DataFrame':
             raise TypeError('Data must be pandas dataframe')
 
         data = data.data
@@ -133,9 +133,9 @@ class WeightedAverage(Predictor):
                          for reference in references]
 
         # Restrict data to given time and separate into targets and references
-        print(times)
+        # print(times)
         current_data = data.query('ts == @times')
-        print(current_data)
+        # print(current_data)
         target_data = current_data.query('instanceID == @target_ids')
         reference_data = current_data.query('instanceID == @reference_ids')
 
@@ -155,7 +155,7 @@ class WeightedAverage(Predictor):
         predicted_powers = np.einsum('ij, j->i', weights, reference_powers) \
             / np.sum(weights, axis=1)
 
-        return target_powers, predicted_powers
+        return predicted_powers, target_powers
 
 
 class GaussianWeightedAverage(WeightedAverage):

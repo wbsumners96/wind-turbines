@@ -66,6 +66,7 @@ class TurbineApp:
         sys.stdout.write('\rLoading complete.                        \n')
         sys.stdout.flush()
         loading_complete = True
+        print('Data info:')
         print(self.data.data.info())
 
     def create_predictors(self):
