@@ -8,36 +8,6 @@
 - **18 February** interim presentation
 - **16 March 17:00** project report submission deadline
 
-# Tasks
-## Alex
-- [x] determine and develop an approach to testing method accuracy
-## Billy
-- [x] create ui (for the purpose of only having to load the data once)
-- [x] develop a predictor class to provide a common interface for different
-	  models
-- [ ] incorporate wind direction
-
-## Mary
-- [x] create UML diagram
-- [ ] implement proposed MVC structure
-
-incorporate modification dates
-- [ ] create mathematical representation of incorporation
-- [ ] design/write pseudocode for implementation
-- [ ] implement the incorporation of modification dates
-
-## TBD
-
-- [ ] tweak weighting function
-- [ ] tweak nonlinearity function $f(power)$
-- [ ] incorporate neighboring times
-- [ ] incorporate turbulence intensity (TI)
-- [-] learn how to determine reference turbines
-- [ ] add file info to README
-- [ ] from the measurements given by the turbines at a given time, what's the
-  best way to get an "agreed" measurement for e.g. wind speed, wind direction.
-  mode/mean/hypermean/stock prices?
-
 # Meeting Notes
 ## 13 January 2022
 - **project goal**: predict the power of a target wind turbine based on
@@ -72,17 +42,26 @@ incorporate modification dates
 - simplify the problem by looking only at data where the wind is coming
   from the dominant direction and the group of target turbines is not
   blocked by other turbines
+ 
+## 03 February 2022
+- main interest is in the ability to predict the power over long periods of time (i.e. many months), rather than the ability to predict the power for a specific instance of time
+- things to add to future plots & figures:
+  - plot power vs error
+  - express error as a percentage of the measured power
+- develop models for each wind direction, where wind direction is split into ten degree "bands"
+- create correlation models for each target-reference pair of turbines
+  - potentially create a correlation model that doesn't depend on distance, and include the distance weighting factor (and other factors such as wind direction) later
+  - correlation should be some function representing the relationship between the power output of the two turbines
+- introduce a weighting for each target-reference pair based on a quality metric rather than based purely on distance
+- consider using regression to incorporate multiple parameters such as distance, turbine angles, etc
+- consider including a confidence measure of how accurate the prediction is
+- currently we are assuming that the power output of the target is a linear combination of the power output of the reference turbines (this is the least sophisticated method)
+- try maximizing the likelihood of observing the data we predict
+- initially, for 1 target and _n_ references:
+  - find the distribution of the target turbine
+  - plot the density of the power output
+  - fit the distribution
+  - find the mean and variance, assuming they are a linear model/weighted average of the power outputs of the reference turbines
+- begin weekly reporting
 
-## Upcoming Meeting: Thursday 3 February 09:00
-### Questions
-- In the config changes file, it specifies there's a "Baseline config up to"
-  some date, and upgrades from/to some other date. Problem is, these dates never
-  match, so there's an interval of time where the turbine doesn't seem to have
-  any configuration at all. Is this just a period where upgrades are being
-  applied, so should we completely ignore the turbine during these periods?
-    - Follow up: if so, does N/A mean the turbine is completely useless after
-      the baseline config finishing day?
-- Related to that, what times in the day should we take the configuration being
-  available from/to? Say, if it says the baseline config is up to August 1 2019,
-  should we interpret that as meaning the baseline config is up until midnight
-  the following day?
+## Upcoming Meeting: Thursday 10 February 09:00
