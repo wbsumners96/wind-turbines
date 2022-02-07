@@ -112,6 +112,7 @@ class TurbineData:
             return data[data.ts == data.ts[time]]
         elif self.data_type=="np.ndarray":
             self.data = data[time]
+            self.data_label = self.data_label[time]
     def select_turbine(self, turbine, verbose=False):
         """
         Return the data for one wind turbine (or a set of turbines) across all times.
@@ -132,6 +133,7 @@ class TurbineData:
             return data[data.instanceID == data.instanceID[turbine]]
         elif self.data_type=="np.ndarray":
             self.data = data[:,turbine]
+            self.data_label = self.data_label[:,turbine]
     def select_wind_direction(self,direction,width,verbose=False):
         """
         Selects only times when the average wind direction is 
