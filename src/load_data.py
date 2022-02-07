@@ -191,6 +191,11 @@ class TurbineData:
         if verbose:
             print("Data shape after selecting unsaturated turbines: "+str(self.data.shape))
 
+    def nan_to_zero(self):
+        """
+        Sets NANs to 0 - risky
+        """
+        self.data = np.nan_to_num(self.data)
 
 def load_data(path: str, data_type: str, flag: bool = False):
 
