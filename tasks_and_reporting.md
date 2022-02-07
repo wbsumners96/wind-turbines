@@ -30,6 +30,12 @@
 - [ ] develop correlation model for target-reference pairs
 
 ### Billy
+- [x] fit some windspeed data to a weibull distribution
+    - this works better if the wind heading is restricted to a particular range
+- [x] fit some power data to a weibull distribution and a lognormal distribution
+    - weibull better but not fantastic, as expected
+- [ ] attempt to infer the correct probability distribution for the power output
+  given windspeed is weibull
 - [ ] incorporate wind direction
 
 ### Mary
