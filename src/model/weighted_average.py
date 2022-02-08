@@ -4,6 +4,7 @@ import numpy as np
 
 
 class WeightedAverage(Predictor):
+
 	def __init__(self, weighting):
 		self.weighting = weighting
 
@@ -161,9 +162,11 @@ class WeightedAverage(Predictor):
 		return predicted_powers, target_powers
 
 
+
 class GaussianWeightedAverage(WeightedAverage):
 	def __init__(self, gamma):
 		def weighting(distance):
 			return np.exp(-gamma*distance*distance)
+
 
 		super().__init__(weighting)

@@ -9,10 +9,12 @@ from model import models
 
 
 def main():
+
 	if len(sys.argv) != 2:
 		print('Usage: python turbine_ui.py data_path')
 	else:
 		data_path = sys.argv[1]
+
 
 	# Get user input for which farm to use
 	farm_options = ['ARD', 'CAU']

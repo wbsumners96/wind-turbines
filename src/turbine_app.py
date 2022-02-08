@@ -35,7 +35,7 @@ class TurbineApp:
 	def __init__(self, data_path, farm):
 		self.data_path = data_path
 		self.farm = farm
-		self.data = None
+		#self.data = None
 		self.models = []
 		self.predictor_parameters = {}
 		self.predictors = []

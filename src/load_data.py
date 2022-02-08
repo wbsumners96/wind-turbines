@@ -50,6 +50,8 @@ class TurbineData:
         self.data = data_complete
         self.data_type = 'pd.DataFrame'
 
+    
+
     def to_tensor(self):
         """
         Converts pd.dataframe to 2 rank 3 tensors.
@@ -91,6 +93,37 @@ class TurbineData:
         self.data = data_tensor[:,:,mask].astype(float)
         self.data_label = data_tensor[:,:,:2]
         self.data_type = 'np.ndarray'
+        print(self.data.shape)
+        print(self.data_label.shape)
+    def to_dataframe(self):
+        """
+        Converts tensor form to dataframe
+        """
+        if self.data_type == "pd.DataFrame":
+            pass
+        else:
+            data = self.data.reshape((-1,11))
+            labels = self.data_label.reshape((-1,2))
+            print(data.shape)
+            print(labels.shape)
+            loctype = ["EastNorth"]*labels.shape[0]
+            df = pd.DataFrame({'ts':labels[:,0],
+                               'instanceID':labels[:,1],
+                               'TI':data[:,0],
+                               'Wind_speed':data[:,1],
+                               'Power':data[:,2],
+                               'Ambient_temperature':data[:,3],
+                               'Wind_direction_calibrated':data[:,4],
+                               'Obstical':labels[:,1],
+                               'LocType':loctype,
+                               'Easting':data[:,5],
+                               'Northing':data[:,6],
+                               'HubHeight':data[:,7],
+                               'Diameter':data[:,8],
+                               'Altitude':data[:,9],
+                               'value':data[:,10]})
+            self.data = df
+            self.data_type="pd.DataFrame"
 
     def select_time(self, time, verbose=False):
         """
@@ -134,6 +167,7 @@ class TurbineData:
         elif self.data_type=="np.ndarray":
             self.data = data[:,turbine]
             self.data_label = self.data_label[:,turbine]
+
     def select_wind_direction(self,direction,width,verbose=False):
         """
         Selects only times when the average wind direction is 

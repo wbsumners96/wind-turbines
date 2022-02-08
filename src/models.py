@@ -167,9 +167,9 @@ def weighted_average(data, weighting, tar_mask, ref_mask,verbose=False):
 	tars = data[:,tar_mask]
 	refs = data[:,ref_mask]
 
-	if not np.all(tars[:,-1]):
+	if not np.all(tars[:,-1]) and verbose:
 		print("Warning: some target turbines are faulty")
-	if not np.all(refs[:,-1]):
+	if not np.all(refs[:,-1]) and verbose:
 		print("Warning: some reference turbines are faulty")
 
 	# Position data
