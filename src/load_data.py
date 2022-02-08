@@ -102,19 +102,24 @@ class TurbineData:
         if self.data_type == "pd.DataFrame":
             pass
         else:
-            data = self.data.reshape((-1,11))
-            labels = self.data_label.reshape((-1,2))
+            print(self.data_label.shape)
+            print(self.data.shape)
+            data = np.dstack((self.data,self.data_label))#,axis=1)
             print(data.shape)
-            print(labels.shape)
-            loctype = ["EastNorth"]*labels.shape[0]
-            df = pd.DataFrame({'ts':labels[:,0],
-                               'instanceID':labels[:,1],
+            data = np.einsum("jik->ijk",data)
+            data = data.reshape((-1,13))
+            #labels = self.data_label.reshape((-1,2))
+            #print(data.shape)
+            #print(labels.shape)
+            loctype = ["EastNorth"]*data.shape[0]
+            df = pd.DataFrame({'ts':data[:,11],
+                               'instanceID':data[:,12],
                                'TI':data[:,0],
                                'Wind_speed':data[:,1],
                                'Power':data[:,2],
                                'Ambient_temperature':data[:,3],
                                'Wind_direction_calibrated':data[:,4],
-                               'Obstical':labels[:,1],
+                               'Obstical':data[:,12],
                                'LocType':loctype,
                                'Easting':data[:,5],
                                'Northing':data[:,6],
