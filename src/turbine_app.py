@@ -66,18 +66,6 @@ class TurbineApp:
 		loading_complete = True
 
 		print(self.data.data.info())
-		print('Converting to tensor...')
-		self.data.to_tensor()
-		print('Conversion successful.')
-	
-	def trim_data(self):
-		"""
-		Trims the data to only the times and turbines of interest.
-		"""
-		self.data.select_turbine(self.targets + self.references)
-		self.data.select_normal_operation_times()
-		self.data.select_unsaturated_times()
-		# self.data.select_time(self.times)
 		
 
 	def create_predictors(self):
@@ -93,17 +81,12 @@ class TurbineApp:
 		Returns a list of predictions (one from each predictor object).
 		"""
 		results = []
-		iso_times = []
-
-		for time in self.times:
-			iso_time = time.strftime(r'%d-%b-%Y %H:%M:%S')
-			iso_times.append(iso_time)
 
 		for predictor in self.predictors:
 			results.append(predictor.predict(self.data,
 											 self.targets,
 											 self.references,
-											 iso_times))
+											 self.times))
 		return results
 
 	def minimize_errors(self):
