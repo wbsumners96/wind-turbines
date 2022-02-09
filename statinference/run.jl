@@ -42,7 +42,8 @@ function plot_frontmost(farm::FarmData, wind_heading, count; shadow_radius=π/4)
          xticks=-1000:200:1000,
          yticks=-1200:200:400,
          xlims=(-1000, 1000),
-         ylims=(-1200, 400))
+         ylims=(-1200, 400),
+         legend=nothing)
 
     starts = [fm[:, :easting] fm[:, :northing]]
     for start in eachslice(starts; dims=1)
@@ -50,10 +51,12 @@ function plot_frontmost(farm::FarmData, wind_heading, count; shadow_radius=π/4)
         ray!(start, wind_heading + shadow_radius)
     end
 
+    ids = turbines(farm)[:, :id]
     @df turbines(farm) scatter!(:easting, :northing, aspect_ratio=:equal,
                                xticks=-1000:200:1000,
                                yticks=-1200:200:400,
-                               markersize=1)
+                               markersize=1,
+                               series_annotations=text.(ids, 8, :bottom))
     @df fm scatter!(:easting, :northing, color=:red, marksersize=2)
 end
 
