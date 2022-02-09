@@ -30,12 +30,41 @@ end
 function plot_frontmost(farm::FarmData, wind_heading, count; shadow_radius=π/4)
     fm = find_frontmost(farm, wind_heading, count; shadow_radius)
 
-    @df turbines(farm) scatter(:easting, :northing, aspect_ratio=:equal,
+    function ray!(start, heading)
+        ts = [0, 2000]
+        xs = start[1] .+ ts .* sin(heading)
+        ys = start[2] .+ ts .* cos(heading)
+        
+        plot!(xs, ys, lw=2, color=:gray)
+    end
+
+    plot(aspect_ratio=:equal,
+         xticks=-1000:200:1000,
+         yticks=-1200:200:400,
+         xlims=(-1000, 1000),
+         ylims=(-1200, 400))
+
+    starts = [fm[:, :easting] fm[:, :northing]]
+    for start in eachslice(starts; dims=1)
+        ray!(start, wind_heading - shadow_radius)
+        ray!(start, wind_heading + shadow_radius)
+    end
+
+    @df turbines(farm) scatter!(:easting, :northing, aspect_ratio=:equal,
                                xticks=-1000:200:1000,
-                               yticks=-1200:200:400)
-    @df fm scatter!(:easting, :northing, color=:red)
+                               yticks=-1200:200:400,
+                               markersize=1)
+    @df fm scatter!(:easting, :northing, color=:red, marksersize=2)
 end
 
+function frontmost_widget(farm)
+    widget = @manipulate for h in 0:5:360, c in 1:5
+        plot_frontmost(farm, π*h/180, c; shadow_radius=π/6)
+    end
+
+    w = Window()
+    body!(w, widget)
+end
 
 function modelpredict(weighting, farm::FarmData, targets, references, times)
     targets = subset(turbines(farm), :id => ByRow(id -> in(id, targets)))
