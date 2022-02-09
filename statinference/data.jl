@@ -65,6 +65,8 @@ function measurements(farm::FarmData)
     colnames = ["time", "id", "turbulence_intensity", "windspeed", "power", 
                 "ambient_temperature", "wind_heading", "flag"]
     rename!(measurements, colnames)
+    as_datetime(timestr) = DateTime(timestr, dateformat"d-u-y H:M:S")
+    transform!(measurements, :time => ByRow(as_datetime) => :time)
 
     farm.measurements = measurements
 
