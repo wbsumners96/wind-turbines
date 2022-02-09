@@ -38,6 +38,30 @@
   given windspeed is weibull
 - [ ] incorporate wind direction
 - [ ] change the `weighted_average.py` predict method to return a dataframe
+- [ ] begin some basic statistical inference
+    - the task as it is given is to find the probability distribution of 
+    p_target | reference measurements + target measurements not including power
+    + target configuration, with the goal to either show/unshow that updating
+      the configuration of a turbine "improves" the power output of a turbine in
+      some way (e.g. mean goes up)
+    - not incorporating power of reference turbines, it's been somewhat
+      interesting to look at p_target | ws_target, h_target, config_target,
+      where ws = windspeed and h = wind heading. we would expect this to be sort
+      of normal, with mean hovering around k*ws^3 for some constant k
+    - created a widget in julia to show the ARD turbines power dependence on ws
+      and heading. interestingly, the widget shows some weird stuff happening
+      with turbines 3 and 10. turbine 3 has a fairly strong dependence on the
+      heading (at least at ws = 10 m/s, where i tested it), being minimal around
+      240 degrees, and maximal around 60 degrees (a difference of 180 degrees).
+      looking at google maps around ardrossan, this isn't too surprising: if the
+      heading of the wind is 240 (i.e. coming from the NE) then it smashes
+      against the side of a mountain. what's strange is that this doesn't seem
+      to be the case for any other turbine I'm looking at.
+    - the other weird thing is that across the turbines, the phase 1
+      configuration appears to give a worse or roughly equal power output than
+      before - even in turbines which haven't had a phase 1 upgrade. this is 
+      particularly prominent in turbine 10. turbine 13 is an exception.
+    - big question: how do i do inference? f(p | s, h, c) is reasonably normal
 
 ### Mary
 - [x] add data representation (i.e. figure generation) to the UI to better display results

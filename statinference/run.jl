@@ -85,7 +85,7 @@ function power_histogram(farm, turbine, windspeed, heading)
     
     colors = [:red, :yellow, :green]
     labels = ["Baseline", "Intermediate", "Phase 1"]
-    title = @sprintf("turbine = %s, windspeed = %.2f m/s, heading = %d",
+    title = @sprintf("turbine = %s,\nwindspeed = %.1f m/s,\nheading = %d°",
                      _as_instanceID(farm, turbine),
                      windspeed,
                      heading)
@@ -117,8 +117,8 @@ function animate_power_histogram(filename, farm, turbine)
     gif(animation, filename)
 end
 
-function windspeed_widget(farm, turbine)
-    plt = @manipulate for ws in 0:0.1:20, h in 0:5:360
+function windspeed_widget(farm)
+    plt = @manipulate for ws in 0:0.1:20, h in 0:5:360, turbine in 1:1:15 
         power_histogram(farm, turbine, ws, h)
     end
 
