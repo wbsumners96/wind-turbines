@@ -37,9 +37,11 @@
 - [ ] attempt to infer the correct probability distribution for the power output
   given windspeed is weibull
 - [ ] incorporate wind direction
+- [ ] change the `weighted_average.py` predict method to return a dataframe
 
 ### Mary
-- [ ] add data representation (i.e. figure generation) to the UI to better display results
+- [x] add data representation (i.e. figure generation) to the UI to better display results
+- [x] add the data path as a command line argument to the UI
 - [ ] refactor code
 - [ ] add time select feature to the UI & app
 - [ ] add file info to README

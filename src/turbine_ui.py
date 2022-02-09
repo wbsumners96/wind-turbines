@@ -2,16 +2,22 @@ import sys
 import re
 import datetime
 import inspect
+import matplotlib.pyplot as plt
 
 from turbine_app import TurbineApp
 from model import models
 
 
 def main():
-	data_path = '~/Documents/academia/current_courses/wind_project/DataPack'
-	farm_options = ['ARD', 'CAU']
+
+	if len(sys.argv) != 2:
+		print('Usage: python turbine_ui.py data_path')
+	else:
+		data_path = sys.argv[1]
+
 
 	# Get user input for which farm to use
+	farm_options = ['ARD', 'CAU']
 	farm = select_farm(farm_options)
 	print(f'Farm selected: {farm}\n')
 
@@ -27,38 +33,25 @@ def main():
 
 	# Get user input for target and reference turbines and times
 	app.targets, app.references = select_turbines()
+	print(f'Targets selected: {app.targets}')
+	print(f'References selected: {app.references}')
 	# app.times = select_times(app)
+	app.times = app.data.data.loc[:,'ts'] # selecting all times
 	print('Selected all times by default.')
-
-	# Trim data to only times and turbines of interest
-	print('\nTrimming data...')
-	app.trim_data()
-	print('Trim successful.')
 
 	# Run predictions
 	app.predictor_parameters = select_predictor_parameters(app)
 	app.create_predictors()
 	print('\nPredictor creation successful. Running predictions...')
-	results = app.run_predictions()
+	results = app.run_predictions() # results is a list of dataframes
 	# app.minimize_errors()
 
 	# Display results
-	print('\nResults:', end='')
 	for result in results:
 		model_name = app.models[results.index(result)].__name__
-		if result == None:
-			print('\nNo result returned for the ' + model_name + ' model.')
-		else:
-			print('\n' + model_name)
-			print('Powers of the target turbine(s) predicted by the '
-				  + model_name + ' model:')
-			for value in result[0]: # result[0] is the set of predicted powers
-				print(value)
-
-			print('Powers of the target turbine(s) measured by the '
-				  + model_name + ' model:')
-			for value in result[1]: # result[1] is the set of measured powers
-				print(value)
+		print(f'\nGenerating the figure for {model_name}...')
+		display_results(result, model_name)
+		print(f'Successfully created the {model_name} results figure.')
 
 
 def select_farm(farms):
@@ -168,8 +161,7 @@ def select_turbines():
 	try:
 		user_targets = user_input.replace(' ', '').split(',')
 		for user_target in user_targets:
-			# subtract 1 to account for indexing
-			targets.append(int(user_target) - 1)
+			targets.append(int(user_target))
 	except ValueError:
 		print('ValueError: Input must be integers separated by commas.\n')
 
@@ -186,8 +178,7 @@ def select_turbines():
 	try:
 		user_references = user_input.replace(' ', '').split(',')
 		for user_reference in user_references:
-			# subtract 1 to account for indexing
-			references.append(int(user_reference) - 1)
+			references.append(int(user_reference))
 	except ValueError:
 		print('ValueError: Input must be integers separated by commas.\n')
 
@@ -315,5 +306,23 @@ def select_predictor_parameters(app):
 
 		predictor_parameters.append(user_parameters)
 	return predictor_parameters
+
+
+def display_results(result, model_name):
+	plt.hist(result.loc[:, 'predicted_power'],
+			 # histtype='stepfilled',
+			 color='hotpink',
+			 label='Predicted power',
+			 alpha=0.6)
+	plt.hist(result.loc[:, 'true_power'],
+			 # histtype='stepfilled',
+			 color='cornflowerblue',
+			 label='Measured power',
+			 alpha=0.6)
+	plt.title(model_name + ' Predicted and Measured Power')
+	plt.ylabel('Power (kW)')
+	plt.legend()
+	plt.show()
+
 
 main()

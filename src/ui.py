@@ -27,7 +27,7 @@ class TurbinatorApp:
     def run(self):
         self.app_config = { 
             'title': 'TURBINATOR',
-            'data_path': '~/Documents/Semester 2/TurbineProject/Data',
+            'data_path': '../../DataPack/',
         }
 
         farms = ['ARD', 'CAU']

@@ -50,6 +50,8 @@ class TurbineData:
         self.data = data_complete
         self.data_type = 'pd.DataFrame'
 
+    
+
     def to_tensor(self):
         """
         Converts pd.dataframe to 2 rank 3 tensors.
@@ -91,6 +93,42 @@ class TurbineData:
         self.data = data_tensor[:,:,mask].astype(float)
         self.data_label = data_tensor[:,:,:2]
         self.data_type = 'np.ndarray'
+        print(self.data.shape)
+        print(self.data_label.shape)
+    def to_dataframe(self):
+        """
+        Converts tensor form to dataframe
+        """
+        if self.data_type == "pd.DataFrame":
+            pass
+        else:
+            print(self.data_label.shape)
+            print(self.data.shape)
+            data = np.dstack((self.data,self.data_label))#,axis=1)
+            print(data.shape)
+            data = np.einsum("jik->ijk",data)
+            data = data.reshape((-1,13))
+            #labels = self.data_label.reshape((-1,2))
+            #print(data.shape)
+            #print(labels.shape)
+            loctype = ["EastNorth"]*data.shape[0]
+            df = pd.DataFrame({'ts':data[:,11],
+                               'instanceID':data[:,12],
+                               'TI':data[:,0],
+                               'Wind_speed':data[:,1],
+                               'Power':data[:,2],
+                               'Ambient_temperature':data[:,3],
+                               'Wind_direction_calibrated':data[:,4],
+                               'Obstical':data[:,12],
+                               'LocType':loctype,
+                               'Easting':data[:,5],
+                               'Northing':data[:,6],
+                               'HubHeight':data[:,7],
+                               'Diameter':data[:,8],
+                               'Altitude':data[:,9],
+                               'value':data[:,10]})
+            self.data = df
+            self.data_type="pd.DataFrame"
 
     def select_time(self, time, verbose=False):
         """
@@ -112,6 +150,7 @@ class TurbineData:
             return data[data.ts == data.ts[time]]
         elif self.data_type=="np.ndarray":
             self.data = data[time]
+            self.data_label = self.data_label[time]
     def select_turbine(self, turbine, verbose=False):
         """
         Return the data for one wind turbine (or a set of turbines) across all times.
@@ -132,6 +171,8 @@ class TurbineData:
             return data[data.instanceID == data.instanceID[turbine]]
         elif self.data_type=="np.ndarray":
             self.data = data[:,turbine]
+            self.data_label = self.data_label[:,turbine]
+
     def select_wind_direction(self,direction,width,verbose=False):
         """
         Selects only times when the average wind direction is 

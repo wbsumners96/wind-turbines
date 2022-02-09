@@ -1,5 +1,6 @@
 from abc import abstractmethod
 import numpy as np
+import scipy as sp
 
 class Predictor:
     """
@@ -75,6 +76,10 @@ class Predictor:
             turbine powers for target turbines
         abs_err_turbine_average : 1D array
             abs_err, but averaged over the target turbines
+        abs_err_time_average : 1D array
+            abs_err, but averaged over times
+        abs_err_total_average : float
+            abs_err averaged over all times and turbines
 
         """
 
@@ -82,5 +87,6 @@ class Predictor:
         tar_powers,pred_powers = self.predict(data,targets,references,times)
         abs_err = np.abs(tar_powers-pred_powers)
         abs_err_turbine_average = np.mean(abs_err,axis=-1)
-        return tar_powers,pred_powers,abs_err,abs_err_turbine_average
-
+        abs_err_time_average = np.mean(abs_err,axis=0)
+        abs_err_total_average= np.mean(abs_err)
+        return tar_powers,pred_powers,abs_err,abs_err_turbine_average,abs_err_time_average,abs_err_total_average
