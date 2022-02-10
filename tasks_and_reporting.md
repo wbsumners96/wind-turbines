@@ -67,7 +67,8 @@
   turbines
 
 # This week
-## Tasks ### Alex
+## Tasks
+### Alex
 - [ ] develop correlation model for target-reference pairs
 
 ### Billy
