@@ -47,6 +47,10 @@ class TurbineData:
                                  on=["ts","instanceID"])
 
         self.farm = farm
+        if self.farm=="ARD":
+            self.n_turbines=15
+        elif self.farm=="CAU":
+            self.n_turbines=21
         self.data = data_complete
         self.data_type = 'pd.DataFrame'
 
@@ -86,7 +90,7 @@ class TurbineData:
             n_turbines = 15
         elif self.farm == "CAU":
             n_turbines = 21
-        self.n_turbines=n_turbines
+        
         data_tensor = data_numpy.reshape((n_turbines,-1,15))
         data_tensor = np.einsum("ijk->jik",data_tensor)
         #print(data_tensor.shape)
