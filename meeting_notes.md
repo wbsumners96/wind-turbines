@@ -86,4 +86,4 @@
   - methods/approaches we have tried thus far and their results
   - approaches we intend to try in the future
 
-## Upcoming Meeting: Thursday 10 February 14:00
+## Upcoming Meeting: Thursday 17 February 09:00
