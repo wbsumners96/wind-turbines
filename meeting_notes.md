@@ -2,7 +2,7 @@
 - [zoom meeting](https://ed-ac-uk.zoom.us/j/87477169710)  passcode: wind2022
 - [PEP8](https://www.python.org/dev/peps/pep-0008/) coding conventions
 - [numpy](https://numpydoc.readthedocs.io/en/latest/format.html) style guide
-- [reports](https://www.overleaf.com/2638667994ssjctncpsmvh)
+- [reports & presentation](https://www.overleaf.com/2638667994ssjctncpsmvh)
 
 # Important Dates
 - **18 February** interim presentation
