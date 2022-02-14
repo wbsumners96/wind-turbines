@@ -67,11 +67,21 @@
   turbines
 
 # This week
+## Presentation Specs
+- 20 minutes total (we're scheduled to start at 15:15)
+- 5-10 minutes of questions following the presentation
+- we'll aim for about 5 minutes for each speaker
+- outline:
+  - Mary -- introduce & describe the problem and the data
+  - Alex -- discuss the methods/approaches we have tried and the results we have achieved thus far
+  - Billy -- discuss approaches we intend to try in the future & provide concluding remarks
 ## Tasks
 ### Alex
+- [ ] write methodology/results section of the presentation
 - [ ] develop correlation model for target-reference pairs
 
 ### Billy
+- [ ] write future work section of the presentation
 - [x] fit some windspeed data to a weibull distribution
 	- this works better if the wind heading is restricted to a particular range
 - [x] fit some power data to a weibull distribution and a lognormal distribution
@@ -107,6 +117,7 @@
 	- big question: how do i do inference? f(p | s, h, c) is reasonably normal
 
 ### Mary
+- [ ] write intro & data sections of the presentation
 - [ ] update UML diagram
 - [ ] refactor code
 - [ ] add file info to README
