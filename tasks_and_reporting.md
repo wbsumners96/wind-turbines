@@ -117,7 +117,7 @@
 	- big question: how do i do inference? f(p | s, h, c) is reasonably normal
 
 ### Mary
-- [ ] write intro & data sections of the presentation
+- [x] write intro & data sections of the presentation
 - [ ] update UML diagram
 - [ ] refactor code
 - [ ] add file info to README
