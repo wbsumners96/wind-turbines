@@ -28,8 +28,8 @@ def lies_in_wake(turbine_position, other_position, wind_heading,
     wind_vector = np.array([np.sin(np.pi*wind_heading/180),
                             np.cos(np.pi*wind_heading/180)])
     turbine_displacement = other_position - turbine_position
-    angle_to_wind = np.dot(turbine_displacement, 
-            wind_vector)/np.linalg.norm(turbine_displacement)
+    angle_to_wind = np.arccos(np.dot(turbine_displacement, 
+            wind_vector)/np.linalg.norm(turbine_displacement))
 
     turbine_distance = np.linalg.norm(turbine_displacement)/blade_diameter 
 
