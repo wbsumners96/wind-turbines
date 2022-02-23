@@ -47,6 +47,10 @@ class TurbineData:
                                  on=["ts","instanceID"])
 
         self.farm = farm
+        if self.farm=="ARD":
+            self.n_turbines=15
+        elif self.farm=="CAU":
+            self.n_turbines=21
         self.data = data_complete
         self.data_type = 'pd.DataFrame'
 
@@ -86,6 +90,7 @@ class TurbineData:
             n_turbines = 15
         elif self.farm == "CAU":
             n_turbines = 21
+        
         data_tensor = data_numpy.reshape((n_turbines,-1,15))
         data_tensor = np.einsum("ijk->jik",data_tensor)
         #print(data_tensor.shape)
@@ -129,6 +134,34 @@ class TurbineData:
                                'value':data[:,10]})
             self.data = df
             self.data_type="pd.DataFrame"
+
+
+    def select_baseline(self):
+        """
+        Selects data before the configuration changes
+        For ARD:  < 01/06/2020
+        For CAU:  < 30/06/2020
+        """
+
+        
+        if self.data_type=="pd.DataFrame":
+            print("Not yet implemented for DataFrame")
+            #if self.farm=="ARD":
+            #    i = list(np.where(self.data.ts=='01-Jun-2020 00:00:00'))
+            #elif self.farm=="CAU":
+            #    i = list(np.where(self.data.ts=='30-Jun-2020 00:00:00'))
+            #print(i)
+            #print(self.data.iloc[i])
+            #self.data = self.data[:i]
+        elif self.data_type=="np.ndarray":
+            if self.farm=="ARD":
+                i = np.argwhere(self.data_label[:,0,0]=='01-Jun-2020 00:00:00')[0,0]
+            elif self.farm=="CAU":
+                i = np.argwhere(self.data_label[:,0,0]=='30-Jun-2020 00:00:00')[0,0]
+            self.data = self.data[:i]
+            self.data_label = self.data_label[:i]
+            
+
 
     def select_time(self, time, verbose=False):
         """
