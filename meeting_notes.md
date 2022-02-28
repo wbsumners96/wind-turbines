@@ -86,4 +86,22 @@
   - methods/approaches we have tried thus far and their results
   - approaches we intend to try in the future
 
-## Upcoming Meeting: Thursday 17 February 09:00
+## 17 February 2022
+preparing for the interim presentation
+- include a clear explanation of the motivation for the project
+- consider clearer ways to express and visualize the data
+
+## 24 February 2022
+starting to wrap up and prepare the report
+- the main idea of the report is a discussion of good and bad ways to predict power output
+- discuss each model and how well the model predicts power
+- future work: applying these prediction methods on turbines where configuration changes have occurred
+- for applications which consider configuration changes, use turbines without configuration change as references and targets with configuration changes as targets
+- plot the power vs power delta over all time (gain curve)
+  - represents error in predictions
+  - can be used as a metric for how good or bad a model is at predicting the power
+  - line should be as close to zero as possible (negative is an underprediction, positive is an overprediction)
+  - can be distilled down to single number using a probability distribution
+- formalize and send advisors an outline of the report
+
+## Upcoming Meeting: Thursday 03 March 09:00
