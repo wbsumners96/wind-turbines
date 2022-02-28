@@ -66,8 +66,11 @@
 - used SciKitLearn KernelRidge regression and trained RBF kernel on a pair of
   turbines
 
-# This week
-## Presentation Specs
+# Week 5: February 10 - February 16
+## Tasks
+- [x] write presentation
+## Notes
+Presentation preparation
 - 20 minutes total (we're scheduled to start at 15:15)
 - 5-10 minutes of questions following the presentation
 - we'll aim for about 5 minutes for each speaker
@@ -75,13 +78,17 @@
   - Mary -- introduce & describe the problem and the data
   - Alex -- discuss the methods/approaches we have tried and the results we have achieved thus far
   - Billy -- discuss approaches we intend to try in the future & provide concluding remarks
+
+# Week 6: February 17 - February 23
+## Notes
+- worked on incorporating a feature to remove turbines affected by the wake of turbuines operating abnormally
+
+# This week
 ## Tasks
 ### Alex
-- [ ] write methodology/results section of the presentation
 - [ ] develop correlation model for target-reference pairs
 
 ### Billy
-- [ ] write future work section of the presentation
 - [x] fit some windspeed data to a weibull distribution
 	- this works better if the wind heading is restricted to a particular range
 - [x] fit some power data to a weibull distribution and a lognormal distribution
@@ -117,13 +124,11 @@
 	- big question: how do i do inference? f(p | s, h, c) is reasonably normal
 
 ### Mary
-- [x] write intro & data sections of the presentation
-- [ ] update UML diagram
-- [ ] refactor code
-- [ ] add file info to README
-- [ ] add time select feature to the UI & app
+- [ ] write "formalized" report outline
 
 ### potential future tasks
+maybe mention these in the future work section of the report
+- [ ] add wake effect filter
 - [ ] tweak weighting function
 - [ ] tweak nonlinearity function $f(power)$
 - [ ] incorporate neighboring times
@@ -135,14 +140,7 @@
 	  wind direction. mode/mean/hypermean/stock prices?
   
 ## Questions
-- In the config changes file, it specifies there's a "Baseline config up to"
-  some date, and upgrades from/to some other date. Problem is, these dates never
-  match, so there's an interval of time where the turbine doesn't seem to have
-  any configuration at all. Is this just a period where upgrades are being
-  applied, so should we completely ignore the turbine during these periods?
-  - Follow up: if so, does N/A mean the turbine is completely useless after
-	the baseline config finishing day?
-- Related to that, what times in the day should we take the configuration being
+- what times in the day should we take the configuration being
   available from/to? Say, if it says the baseline config is up to August 1 2019,
   should we interpret that as meaning the baseline config is up until midnight
   the following day?
