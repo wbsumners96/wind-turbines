@@ -81,14 +81,20 @@ Presentation preparation
 
 # Week 6: February 17 - February 23
 ## Notes
+- [x] develop correlation model for target-reference pairs
 - worked on incorporating a feature to remove turbines affected by the wake of turbuines operating abnormally
+
+# Week 7: February 24 - March 02
+- [x] write "formalized" report outline
 
 # This week
 ## Tasks
 ### Alex
-- [ ] develop correlation model for target-reference pairs
+- [ ] create power vs power delta gain curve figures
+- [ ] re-train the models on a larger set of data
 
 ### Billy
+- [ ] implement wake effects-based data cleaning
 - [x] fit some windspeed data to a weibull distribution
 	- this works better if the wind heading is restricted to a particular range
 - [x] fit some power data to a weibull distribution and a lognormal distribution
@@ -124,7 +130,11 @@ Presentation preparation
 	- big question: how do i do inference? f(p | s, h, c) is reasonably normal
 
 ### Mary
-- [ ] write "formalized" report outline
+- [ ] update UML diagram
+- [ ] integrate existing code/features with existing code structure
+- [ ] refactor code
+- [ ] add file info to README
+- [ ] add UML diagram and github link to appendix
 
 ### potential future tasks
 maybe mention these in the future work section of the report
