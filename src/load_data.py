@@ -87,7 +87,8 @@ class TurbineData:
         data_tensor = data_numpy.reshape((n_turbines, -1, 15))
         data_tensor = np.einsum('ijk->jik', data_tensor)
 
-        mask = np.array([0,0,1,1,1,1,1,0,0,1,1,1,1,1,1], dtype=bool)
+        mask = np.array([0, 0, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1], 
+                dtype=bool)
         self.data = data_tensor[:, :, mask].astype(float)
         self.data_label = data_tensor[:, :, :2]
         self.data_type = 'np.ndarray'
@@ -98,10 +99,10 @@ class TurbineData:
         """
         if self.data_type != 'pd.DataFrame':
             data = np.dstack((self.data, self.data_label))
-            data = np.einsum("jik->ijk", data)
+            data = np.einsum('jik->ijk', data)
             data = data.reshape((-1, 13))
 
-            loctype = ["EastNorth"] * data.shape[0]
+            loctype = ['EastNorth'] * data.shape[0]
             self.data = pd.DataFrame({'ts': data[:, 11],
                                       'instanceID': data[:, 12],
                                       'TI': data[:, 0],
@@ -252,6 +253,103 @@ class TurbineData:
         Sets NANs to 0 - risky
         """
         self.data = np.nan_to_num(self.data)
+
+    def clear_wake_affected_turbines(self):
+        """
+        Remove all data points of turbines lying in the wake of  
+        non-operational turbines.
+
+        That is, if at time t, turbine A is non-operational, and turbine B lies
+        in the wake of turbine A according to IEC 61400-12-2 with the wind
+        heading set to be that measured by turbine A, then the data point of 
+        turbine B at time t will be removed.
+        """
+        def lies_in_wake(turbine_position, other_position, wind_heading,
+                blade_diameter=80):
+            """
+            Determine if turbine 'other' lies in the wake of turbine 'turbine'
+            according to IEC 61400-12-2.
+
+            Parameters
+            ----------
+            turbine_position: length 2 numpy vector
+                Position of turbine, with easting (in meters) in the first
+                component and northing (in meters) in the second.
+
+            other_position: length 2 numpy vector
+                Position of other.
+
+            wind_heading: float
+                Direction of the wind in degrees from north.
+
+            blade_diameter: float (default = 80)
+                Diameter of turbine blades in meters.
+            """
+            def iec_function(blade_diameters):
+                return (180*1.3/np.pi)*np.arctan(2.5/blade_diameters + 0.15)\
+                        + 10
+
+            wind_vector = np.array([np.sin(np.pi*wind_heading/180),
+                                    np.cos(np.pi*wind_heading/180)])
+            turbine_displacement = other_position - turbine_position
+            angle_to_wind = np.arccos(np.dot(turbine_displacement, 
+                    wind_vector)/np.linalg.norm(turbine_displacement))
+
+            turbine_distance = np.linalg.norm(turbine_displacement)\
+                    /blade_diameter 
+
+            if turbine_distance <= 2:
+                return True
+            if turbine_distance > 20:
+                return False
+
+            return angle_to_wind <= iec_function(turbine_distance)
+
+        if self.data_type != 'pd.DataFrame':
+            print('Convert to a pandas DataFrame using self.to_dataframe().')
+
+            return
+
+        non_operational = self.data[self.data.value == 0]
+        non_operational = non_operational[['ts', 'instanceID', 'Easting',
+            'Northing', 'Diameter', 'Wind_direction_calibrated']]
+        turbine_positions = {'other_id': self.data.instanceID,
+                             'other_easting': self.data['Easting'],
+                             'other_northing': self.data['Northing']}
+        turbine_positions = pd.DataFrame(turbine_positions)
+
+        # an unfortunate hack to perform a cross join.
+        non_operational['cross'] = 0
+        turbine_positions['cross'] = 0
+        df = pd.merge(non_operational, turbine_positions, on='cross')
+        df['affected'] = 0
+
+        def f(row):
+            if row['instanceID'] == row['other_id']:
+                return
+
+            turbine_position = np.array([row['Easting'], row['Northing']])
+            other_position = np.array([row['other_easting'],
+                                       row['other_northing']])
+            blade_diameter = row['Diameter']
+            wind_heading = row['Wind_direction_calibrated']
+
+            if lies_in_wake(turbine_position,
+                            other_position,
+                            wind_heading,
+                            blade_diameter):
+                row['affected'] = 1
+
+        df.apply(f, axis=1)
+        df = df[df['affected'] == 1][['ts', 'other_id']]
+        
+        self.data = pd.merge(self.data, df,
+                             left_on=['ts', 'instanceID'],
+                             right_on=['ts', 'other_id'],
+                             how='outer',
+                             indicator=True) \
+                      .query('_merge == "left_only"') \
+                      .drop(['_merge', 'other_id'], axis=1)
 
 
 def load_data(path: str, data_type: str, flag: bool = False):
