@@ -104,4 +104,11 @@ starting to wrap up and prepare the report
   - can be distilled down to single number using a probability distribution
 - formalize and send advisors an outline of the report
 
-## Upcoming Meeting: Thursday 03 March 09:00
+## 03 March 2022
+feedback on the report outline
+- include UML diagram in appendix
+- include github link in appendix
+- explain the underlying mechanisms of the functions we use and why they were reasonable choices
+- move wake effects discussion into the "Data" section
+
+## Upcoming Meeting: Thursday 10 March 09:00
