@@ -9,9 +9,6 @@ from joblib import dump, load
 import matplotlib.pyplot as plt
 import matplotlib as mpl
 import numpy as np 
-import scipy.optimize as opt
-import scipy.stats as stats
-import seaborn as sns
 from sklearn.kernel_ridge import KernelRidge
 from sklearn.compose import TransformedTargetRegressor
 from tqdm import tqdm
