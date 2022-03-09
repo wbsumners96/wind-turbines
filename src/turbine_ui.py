@@ -109,12 +109,7 @@ def select_models():
 		print('\nChoose from the following available models: ')
 		for i, model in enumerate(models):
 			print(f'({i+1}) {model.__name__}')
-		print('(Q) Quit')
 		user_selection = input()
-
-		# Terminate if the user quits
-		if user_selection == 'Q' or user_selection == 'q':
-			sys.exit()
 
 		# As long as the user enters invalid input, display an error message and
 		# display the prompt again
@@ -149,13 +144,9 @@ def select_turbines():
 	references = []
 
 	# Prompt for target turbine IDs
-	print('\nEnter target turbine IDs separated by commas, or (Q) to quit: ',
+	print('\nEnter target turbine IDs separated by commas: ',
 		  end='')
 	user_input = input()
-
-	# Terminate if the user quits
-	if user_input == 'Q' or user_input == 'q':
-		sys.exit()
 
 	# Populate the target list with the user's selections
 	try:
@@ -166,13 +157,9 @@ def select_turbines():
 		print('ValueError: Input must be integers separated by commas.\n')
 
 	# Prompt for reference turbine IDs
-	print('Enter reference turbine IDs separated by commas, or (Q) to quit: ',
+	print('Enter reference turbine IDs separated by commas: ',
 		  end='')
 	user_input = input()
-
-	# Terminate if the user quits
-	if user_input == 'Q' or user_input == 'q':
-		sys.exit()
 
 	# Populate the reference list with the user's selections
 	try:
@@ -280,21 +267,6 @@ def select_predictor_parameters(app):
 
 		for parameter in inspect.signature(model.__init__).parameters.keys():
 			# Automatically set the parameters required for all predictors
-
-			# elif parameter == 'data':
-			# 	user_parameters[parameter] = app.data
-			# 	print('Automatically set data parameter to the loaded data.')
-			# elif parameter == 'targets':
-			# 	user_parameters[parameter] = app.targets
-			# 	print(f'Automatically set targets to {targets}.')
-			# elif parameter == 'references':
-			# 	user_parameters[parameter] == app.references
-			# 	print(f'Automatically set references to {references}.')
-			# elif parameter == 'times':
-			# 	user_parameters[parameter] == app.times
-			# 	print(f'Automatically set times to {times}.')
-			# Get user input for any remaining parameters
-			# else:
 			if parameter != 'self':
 				print(f'Enter a value for {parameter}: ', end='')
 				user_input = input()
