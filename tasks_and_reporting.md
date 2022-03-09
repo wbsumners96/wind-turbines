@@ -91,7 +91,7 @@ Presentation preparation
 ## Tasks
 ### Alex
 - [ ] create power vs power delta gain curve figures
-- [ ] re-train the models on a larger set of data
+- [x] re-train the models on a larger set of data
 
 ### Billy
 - [ ] implement wake effects-based data cleaning
