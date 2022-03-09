@@ -142,8 +142,6 @@ class TurbineData:
             self.data = self.data[:i]
             self.data_label = self.data_label[:i]
 
-            
-
     def select_new_phase(self):
         """
         Selects data before the configuration changes
@@ -354,10 +352,10 @@ class TurbineData:
         non_operational = self.data[self.data.value == 0]
         non_operational = non_operational[['ts', 'instanceID', 'Easting',
             'Northing', 'Diameter', 'Wind_direction_calibrated']]
-        turbine_positions = {'other_id': self.data.instanceID,
+        turbine_positions = {'other_id': self.data['instanceID'],
                              'other_easting': self.data['Easting'],
                              'other_northing': self.data['Northing']}
-        turbine_positions = pd.DataFrame(turbine_positions)
+        turbine_positions = pd.DataFrame(turbine_positions).drop_duplicates()
 
         # an unfortunate hack to perform a cross join.
         non_operational['cross'] = 0

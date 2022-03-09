@@ -33,16 +33,16 @@ class DummyPredictor:
         return X
 
 
-parser = argparse.ArgumentParser(description='Slow dancing with wind turbines.')
-parser.add_argument('data_path', 
-        help='path to the directory in which the data is located.')
-parser.add_argument('--type', help='type of data to load (ARD or CAU).')
+# parser = argparse.ArgumentParser(description='Slow dancing with wind turbines.')
+# parser.add_argument('data_path', 
+#         help='path to the directory in which the data is located.')
+# parser.add_argument('--type', help='type of data to load (ARD or CAU).')
 
-args = parser.parse_args()
-data = TurbineData(args.data_path,args.type)
+# args = parser.parse_args()
+# data = TurbineData(args.data_path, args.type)
 
-data.to_tensor()
-data.select_baseline()
+# data.to_tensor()
+# data.select_baseline()
 
 
 def correlation_functions(data, D=10, filename='cor_func'):
@@ -86,32 +86,32 @@ def correlation_functions(data, D=10, filename='cor_func'):
     return k_mat, r_mat
 
 
-k_mat = load('cor_func_baseline_log_ARD.joblib')
-r_mat = np.load('cor_func_baseline_log_ARD_r2.npy')
-
-plt.imshow(r_mat)
-plt.show()
-
-average_power_gain_curve(data, k_mat)
-
-I=3
-J=4
-
-data_copy = copy.deepcopy(data)
-data_copy.select_turbine([I, J])
-data_copy.select_normal_operation_times()
-data_copy.select_unsaturated_times()
-
-x = data_copy.data[:, 1, 2] # reference power
-y = data_copy.data[:, 0, 2] # target power
-xa = data_copy.data[:, 1, 4] # reference angle
-ya = data_copy.data[:, 0, 4] # target angle
-
-X = np.stack((x, xa), axis=1)
-Y = np.stack((y, ya), axis=1)
-
-r2 = k_mat[I, J].score(X, Y)
-ys = k_mat[I, J].predict(X)
+# k_mat = load('cor_func_baseline_log_ARD.joblib')
+# r_mat = np.load('cor_func_baseline_log_ARD_r2.npy')
+# 
+# plt.imshow(r_mat)
+# plt.show()
+# 
+# average_power_gain_curve(data, k_mat)
+# 
+# I=3
+# J=4
+# 
+# data_copy = copy.deepcopy(data)
+# data_copy.select_turbine([I, J])
+# data_copy.select_normal_operation_times()
+# data_copy.select_unsaturated_times()
+# 
+# x = data_copy.data[:, 1, 2] # reference power
+# y = data_copy.data[:, 0, 2] # target power
+# xa = data_copy.data[:, 1, 4] # reference angle
+# ya = data_copy.data[:, 0, 4] # target angle
+# 
+# X = np.stack((x, xa), axis=1)
+# Y = np.stack((y, ya), axis=1)
+# 
+# r2 = k_mat[I, J].score(X, Y)
+# ys = k_mat[I, J].predict(X)
 
 
 def test_kernel_ridge(data):
