@@ -325,8 +325,8 @@ class TurbineData:
                 Diameter of turbine blades in meters.
             """
             def iec_function(blade_diameters):
-                return (180*1.3/np.pi)*np.arctan(2.5/blade_diameters + 0.15)\
-                        + 10
+                return 1.3*np.arctan(2.5/blade_diameters + 0.15)\
+                        + np.pi*10/180
 
             wind_vector = np.array([np.sin(np.pi*wind_heading/180),
                                     np.cos(np.pi*wind_heading/180)])
@@ -338,8 +338,10 @@ class TurbineData:
                     /blade_diameter 
 
             if turbine_distance <= 2:
+                print('too close')
                 return True
             if turbine_distance > 20:
+                print('too far')
                 return False
 
             return angle_to_wind <= iec_function(turbine_distance)
@@ -378,6 +380,7 @@ class TurbineData:
                             wind_heading,
                             blade_diameter):
                 row['affected'] = 1
+                print(row)
 
         df.apply(f, axis=1)
         df = df[df['affected'] == 1][['ts', 'other_id']]
@@ -389,6 +392,8 @@ class TurbineData:
                              indicator=True) \
                       .query('_merge == "left_only"') \
                       .drop(['_merge', 'other_id'], axis=1)
+
+        return df
 
 
 def load_data(path: str, data_type: str, flag: bool = False):
