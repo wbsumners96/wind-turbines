@@ -129,6 +129,8 @@ class TurbineData:
         """
         if self.data_type == 'pd.DataFrame':
             print('Not yet implemented for DataFrame')
+
+            return
         elif self.data_type == 'np.ndarray':
             if self.farm == 'ARD':
                 i = np.argwhere(self.data_label[:, 0, 0] 
@@ -140,33 +142,26 @@ class TurbineData:
             self.data = self.data[:i]
             self.data_label = self.data_label[:i]
 
-            
-
     def select_new_phase(self):
         """
         Selects data before the configuration changes
         For ARD:  < 01/06/2020
         For CAU:  < 30/06/2020
         """
+        if self.data_type == 'pd.DataFrame':
+            print('Not yet implemented for DataFrame')
+            
+            return
+        elif self.data_type == 'np.ndarray':
+            if self.farm == 'ARD':
+                condition = self.data_label[:, 0, 0] == '10-Sep-2020 00:00:00'
+                i = np.argwhere(condition)[0,0]
+            elif self.farm == 'CAU':
+                condition = self.data_label[:, 0, 0] == '19-Oct-2020 00:00:00'
+                i = np.argwhere(condition)[0,0]
 
-        
-        if self.data_type=="pd.DataFrame":
-            print("Not yet implemented for DataFrame")
-            #if self.farm=="ARD":
-            #    i = list(np.where(self.data.ts=='01-Jun-2020 00:00:00'))
-            #elif self.farm=="CAU":
-            #    i = list(np.where(self.data.ts=='30-Jun-2020 00:00:00'))
-            #print(i)
-            #print(self.data.iloc[i])
-            #self.data = self.data[:i]
-        elif self.data_type=="np.ndarray":
-            if self.farm=="ARD":
-                i = np.argwhere(self.data_label[:,0,0]=='10-Sep-2020 00:00:00')[0,0]
-            elif self.farm=="CAU":
-                i = np.argwhere(self.data_label[:,0,0]=='19-Oct-2020 00:00:00')[0,0]
             self.data = self.data[i:]
             self.data_label = self.data_label[i:]
-
 
     def select_time(self, time, verbose=False):
         """
@@ -282,14 +277,15 @@ class TurbineData:
         Best to run after running select turbines
         """
         if verbose:
-            print("Data shape before selecting higher power turbines: "+str(self.data.shape))
-        flag = np.all((self.data[:,:,2]>cutoff).astype(bool),axis=1)
+            print(f'Data shape before selecting higher power turbines: \
+                    {self.data.shape}')
+
+        flag = np.all((self.data[:, :, 2] > cutoff).astype(bool), axis=1)
         self.data = self.data[flag]
         self.data_label = self.data_label[flag]
         if verbose:
-            print("Data shape after selecting higher power turbines: "+str(self.data.shape))
-
-
+            print(f'Data shape after selecting higher power turbines: \
+                    {self.data.shape}')
 
     def nan_to_zero(self):
         """
@@ -356,10 +352,10 @@ class TurbineData:
         non_operational = self.data[self.data.value == 0]
         non_operational = non_operational[['ts', 'instanceID', 'Easting',
             'Northing', 'Diameter', 'Wind_direction_calibrated']]
-        turbine_positions = {'other_id': self.data.instanceID,
+        turbine_positions = {'other_id': self.data['instanceID'],
                              'other_easting': self.data['Easting'],
                              'other_northing': self.data['Northing']}
-        turbine_positions = pd.DataFrame(turbine_positions)
+        turbine_positions = pd.DataFrame(turbine_positions).drop_duplicates()
 
         # an unfortunate hack to perform a cross join.
         non_operational['cross'] = 0
