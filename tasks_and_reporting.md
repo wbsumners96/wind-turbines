@@ -92,6 +92,8 @@ Presentation preparation
 ### Alex
 - [ ] create power vs power delta gain curve figures
 - [x] re-train the models on a larger set of data
+- [ ] do power gain curves but with weighted average of pairwise functions
+- [ ] try linear regression of outputs of pairwise functions to more rigourously determine weights
 
 ### Billy
 - [ ] implement wake effects-based data cleaning
