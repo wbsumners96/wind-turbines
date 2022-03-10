@@ -66,72 +66,54 @@
 - used SciKitLearn KernelRidge regression and trained RBF kernel on a pair of
   turbines
 
+# Week 5: February 10 - February 16
+## Tasks
+- [x] write presentation
+## Notes
+Presentation preparation
+- 20 minutes total (we're scheduled to start at 15:15)
+- 5-10 minutes of questions following the presentation
+- we'll aim for about 5 minutes for each speaker
+- outline:
+  - Mary -- introduce & describe the problem and the data
+  - Alex -- discuss the methods/approaches we have tried and the results we have achieved thus far
+  - Billy -- discuss approaches we intend to try in the future & provide concluding remarks
+
+# Week 6: February 17 - February 23
+## Notes
+- [x] develop correlation model for target-reference pairs
+- worked on incorporating a feature to remove turbines affected by the wake of turbuines operating abnormally
+
+# Week 7: February 24 - March 02
+- [x] write "formalized" report outline
+
 # This week
-## Tasks ### Alex
-- [ ] develop correlation model for target-reference pairs
+## Tasks
+### Alex
+- [ ] create power vs power delta gain curve figures
+- [ ] re-train the models on a larger set of data
 
 ### Billy
-- [x] fit some windspeed data to a weibull distribution
-	- this works better if the wind heading is restricted to a particular range
-- [x] fit some power data to a weibull distribution and a lognormal distribution
-	- weibull better but not fantastic, as expected
-- [ ] attempt to infer the correct probability distribution for the power output
-      given windspeed is weibull
-- [ ] incorporate wind direction
-- [ ] change the `weighted_average.py` predict method to return a dataframe
-- [ ] begin some basic statistical inference
-	- the task as it is given is to find the probability distribution of
-	  p_target | reference measurements + target measurements not including
-	  power + target configuration, with the goal to either show/unshow that
-	  updating the configuration of a turbine "improves" the power output of a
-	  turbine in some way (e.g. mean goes up)
-	- not incorporating power of reference turbines, it's been somewhat
-	  interesting to look at p_target | ws_target, h_target, config_target,
-	  where ws = windspeed and h = wind heading. we would expect this to be sort
-	  of normal, with mean hovering around k*ws^3 for some constant k
-	- created a widget in julia to show the ARD turbines power dependence on ws
-	  and heading. interestingly, the widget shows some weird stuff happening
-	  with turbines 3 and 10. turbine 3 has a fairly strong dependence on the
-	  heading (at least at ws = 10 m/s, where i tested it), being minimal around
-	  240 degrees, and maximal around 60 degrees (a difference of 180 degrees). 
-	  Looking at google maps around ardrossan, this isn't too surprising: if the
-	  heading of the wind is 240 (i.e. coming from the NE) then it smashes
-	  against the side of a mountain. what's strange is that this doesn't seem
-	  to be the case for any other turbine I'm looking at.
-	- the other weird thing is that across the turbines, the phase 1
-	  configuration appears to give a worse or roughly equal power output than
-	  before
-	- even in turbines which haven't had a phase 1 upgrade. this is
-	  particularly prominent in turbine 10. turbine 13 is an exception.
-	- big question: how do i do inference? f(p | s, h, c) is reasonably normal
+- [ ] implement wake effects-based data cleaning
+- [ ] ask oli for iec doc or some info on how wake function is derived
 
 ### Mary
 - [ ] update UML diagram
+- [ ] integrate existing code/features with existing code structure
 - [ ] refactor code
 - [ ] add file info to README
-- [ ] add time select feature to the UI & app
+- [ ] add UML diagram and github link to appendix
 
 ### potential future tasks
+mention some of these in the future work section of the report
 - [ ] tweak weighting function
 - [ ] tweak nonlinearity function $f(power)$
 - [ ] incorporate neighboring times
 - [ ] incorporate turbulence intensity (TI)
-- [ ] incorporate modification dates
-- [ ] learn how to determine reference turbines
-- [ ] from the measurements given by the turbines at a given time, what's the
-      best way to get an "agreed" measurement for e.g. wind speed,
-	  wind direction. mode/mean/hypermean/stock prices?
+- [ ] incorporate modification dates (in particular train models exclusively on baseline)
+
+### Report writing tasks
+- [ ] learn how kernel ridge regression works (in context of determining which
+  hyperparameters we chose
   
 ## Questions
-- In the config changes file, it specifies there's a "Baseline config up to"
-  some date, and upgrades from/to some other date. Problem is, these dates never
-  match, so there's an interval of time where the turbine doesn't seem to have
-  any configuration at all. Is this just a period where upgrades are being
-  applied, so should we completely ignore the turbine during these periods?
-  - Follow up: if so, does N/A mean the turbine is completely useless after
-	the baseline config finishing day?
-- Related to that, what times in the day should we take the configuration being
-  available from/to? Say, if it says the baseline config is up to August 1 2019,
-  should we interpret that as meaning the baseline config is up until midnight
-  the following day?
-- how to do inference? f(p | s, h, c) is reasonably normal

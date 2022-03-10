@@ -2,7 +2,7 @@
 - [zoom meeting](https://ed-ac-uk.zoom.us/j/87477169710)  passcode: wind2022
 - [PEP8](https://www.python.org/dev/peps/pep-0008/) coding conventions
 - [numpy](https://numpydoc.readthedocs.io/en/latest/format.html) style guide
-- [reports](https://www.overleaf.com/2638667994ssjctncpsmvh)
+- [reports & presentation](https://www.overleaf.com/2638667994ssjctncpsmvh)
 
 # Important Dates
 - **18 February** interim presentation
@@ -86,4 +86,29 @@
   - methods/approaches we have tried thus far and their results
   - approaches we intend to try in the future
 
-## Upcoming Meeting: Thursday 10 February 14:00
+## 17 February 2022
+preparing for the interim presentation
+- include a clear explanation of the motivation for the project
+- consider clearer ways to express and visualize the data
+
+## 24 February 2022
+starting to wrap up and prepare the report
+- the main idea of the report is a discussion of good and bad ways to predict power output
+- discuss each model and how well the model predicts power
+- future work: applying these prediction methods on turbines where configuration changes have occurred
+- for applications which consider configuration changes, use turbines without configuration change as references and targets with configuration changes as targets
+- plot the power vs power delta over all time (gain curve)
+  - represents error in predictions
+  - can be used as a metric for how good or bad a model is at predicting the power
+  - line should be as close to zero as possible (negative is an underprediction, positive is an overprediction)
+  - can be distilled down to single number using a probability distribution
+- formalize and send advisors an outline of the report
+
+## 03 March 2022
+feedback on the report outline
+- include UML diagram in appendix
+- include github link in appendix
+- explain the underlying mechanisms of the functions we use and why they were reasonable choices
+- move wake effects discussion into the "Data" section
+
+## Upcoming Meeting: Thursday 10 March 09:00
