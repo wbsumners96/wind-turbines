@@ -43,6 +43,56 @@ class DummyPredictor:
 # data.to_tensor()
 # data.select_baseline()
 
+def kernel_ridge_regressors(training_data):
+    """
+    Fit a collection of kernel ridge models of the form target_power = 
+    f(reference_power, target_angle, reference_angle) for each pair of target
+    and reference turbines in the farm.
+    """
+    target = training_data.select_turbine('ARD_WTG01')
+    target = target[['ts', 'instanceID', 'Power', 'Wind_direction_calibrated']]
+    target.rename(columns={'instanceID': 'target_id',
+                           'Power': 'target_power',
+                           'Wind_direction_calibrated': 'target_angle'},
+                  inplace=True)
+
+    kernel = KernelRidge(kernel='laplacian', alpha=0.001, gamma=0.001)
+    regressors = {}
+    for reference_number in range(2, 16):
+        reference_id = f'ARD_WTG{reference_number:02}'
+        reference = training_data.select_turbine(reference_id)
+        reference = reference[['ts',
+                               'instanceID',
+                               'Power',                 
+                               'Wind_direction_calibrated']]
+        reference.rename(columns={'instanceID': 'reference_id',
+                                  'Power': 'reference_power',
+                                  'Wind_direction_calibrated':
+                                          'reference_angle'},
+                         inplace=True)
+
+        training_data = pd.merge(target, reference, on='ts')
+
+        target_power = training_data['target_power'].to_numpy()
+
+        target_angle = training_data['target_angle'].to_numpy()
+        reference_power = training_data['reference_power'].to_numpy()
+        reference_angle = training_data['reference_angle'].to_numpy()
+        training_features = np.column_stack([reference_power,
+                                             target_angle,
+                                             reference_angle])
+
+        regressor = TransformedTargetRegressor(regressor=kernel,
+                                               func=np.log1p,
+                                               inverse_func=np.expm1)
+        regressor.fit(training_features, target_power)
+
+        regressors[reference_id] = regressor
+
+    dump(regressors, 'kernel_ridge_functions.joblib')
+
+    return regressors
+
 
 def correlation_functions(data, D=10, filename='cor_func'):
     """
