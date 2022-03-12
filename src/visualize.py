@@ -272,3 +272,4 @@ def average_power_gain_curve(data, k_mat):
     plt.legend()
     plt.show()
 
+>>>>>>> 973e6b07a484740d26171d025483a269b97c1e88

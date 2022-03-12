@@ -2,7 +2,6 @@
 File for me playing around with turbine-turbine
 Correlation functions
 """
-
 import argparse
 import copy
 from joblib import dump, load
@@ -201,4 +200,3 @@ def test_kernel_ridge(data):
         plt.xlabel('Measured target power')
         plt.ylabel('Measured - predicted target power')
         plt.show()
-
