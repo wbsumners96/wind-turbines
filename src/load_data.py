@@ -1,6 +1,10 @@
+from datetime import datetime
+from dateutil import parser
 import os
+
 import pandas as pd
 import numpy as np 
+
 
 class TurbineData:
     def __init__(self, path, farm):
@@ -121,17 +125,44 @@ class TurbineData:
 
             self.data_type = 'pd.DataFrame'
 
-    def select_baseline(self):
+    def select_baseline(self, inplace=False):
         """
         Selects data before the configuration changes
         For ARD:  < 01/06/2020
         For CAU:  < 30/06/2020
         """
         if self.data_type == 'pd.DataFrame':
-            print('Not yet implemented for DataFrame')
+            def compare_datetime(timestamp, baseline):
+                """
+                Convert a timestamp in the turbine dataframe to a Python
+                datetime object, and compare it against the baseline change
+                datetime.
+                """
+                timestamp = parser.parse(timestamp)
 
-            return
+                return timestamp <= baseline
+
+            if self.farm == 'ARD':
+                baseline = parser.parse('01-Jun-2020 00:00:00')
+            elif self.farm == 'CAU':
+                baseline = parser.parse('30-Jun-2020 00:00:00')
+
+            timestamps = self.data.ts.apply(lambda ts:
+                    compare_datetime(ts, baseline)) 
+
+            baseline_data = self.data[timestamps]
+            
+            if inplace:
+                self.data = baseline_data
+
+            return baseline_data
         elif self.data_type == 'np.ndarray':
+            if not inplace:
+                print('Selecting baseline configuration datetimes for \
+                        numpy arrays has not been implemented in the non- \
+                        inplace case')
+
+                return
             if self.farm == 'ARD':
                 i = np.argwhere(self.data_label[:, 0, 0] 
                         == '01-Jun-2020 00:00:00')[0, 0]
@@ -185,7 +216,7 @@ class TurbineData:
             self.data = data[time]
             self.data_label = self.data_label[time]
 
-    def select_turbine(self, turbine, verbose=False):
+    def select_turbine(self, turbine, inplace=False, verbose=False):
         """
         Return the data for one wind turbine (or a set of turbines) across all 
         times.
@@ -203,11 +234,21 @@ class TurbineData:
         data = self.data
         if verbose:
             print(f'Selected turbine {data.instanceID[turbine]}')
+
         if self.data_type == 'pd.DataFrame':
-            return data[data.instanceID == data.instanceID[turbine]]
+            turbine_data = data[data.instanceID == turbine]
+            if inplace:
+                self.data = turbine_data
+
+            return turbine_data
         elif self.data_type == 'np.ndarray':
-            self.data = data[:, turbine]
-            self.data_label = self.data_label[:, turbine]
+            turbine_data = data[:, turbine]
+            turbine_data_label = self.data_label[:, turbine]
+            if inplace:
+                self.data = turbine_data
+                self.data_label = turbine_data_label
+
+            return turbine_data, turbine_data_label
 
     def select_wind_direction(self, direction, width, verbose=False):
         """
