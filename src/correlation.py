@@ -56,9 +56,29 @@ def kernel_ridge_regressors(training_data):
                            'Wind_direction_calibrated': 'target_angle'},
                   inplace=True)
 
-    kernel = KernelRidge(kernel='laplacian', alpha=0.001, gamma=0.001)
+    def periodic_kernel(theta_i, theta_j, variance=1, length=1, period=2*np.pi):
+        angle = (np.pi/period)*np.abs(theta_i - theta_j)
+        z = (-2/length*length)*(np.sin(angle)**2)
+
+        return variance*np.exp(z)
+
+    def linear_kernel(power_i, power_j):
+        return power_i*power_j
+
+    def turbine_kernel(x_i, x_j):
+        power_ref_i, theta_ref_i, theta_tar_i = x_i.T
+        power_ref_j, theta_ref_j, theta_tar_j = x_j.T
+
+        power_cov = linear_kernel(power_ref_i, power_ref_j.reshape((-1, 1)))
+        theta_ref_cov = periodic_kernel(theta_ref_i,
+                                        theta_ref_j.reshape((-1, 1)))
+        theta_tar_cov = periodic_kernel(theta_tar_i,
+                                        theta_tar_j.reshape((-1, 1)))
+
+        return power_cov*theta_ref_cov*theta_tar_cov
+
     regressors = {}
-    for reference_number in range(2, 16):
+    for reference_number in tqdm(range(2, 16)):
         reference_id = f'ARD_WTG{reference_number:02}'
         reference = training_data.select_turbine(reference_id)
         reference = reference[['ts',
@@ -71,21 +91,25 @@ def kernel_ridge_regressors(training_data):
                                           'reference_angle'},
                          inplace=True)
 
-        training_data = pd.merge(target, reference, on='ts')
+        merged_data = pd.merge(target, reference, on='ts')
 
-        target_power = training_data['target_power'].to_numpy()
+        # labels for ml.
+        target_power = merged_data['target_power'].to_numpy()
 
-        target_angle = training_data['target_angle'].to_numpy()
-        reference_power = training_data['reference_power'].to_numpy()
-        reference_angle = training_data['reference_angle'].to_numpy()
+        # features for ml.
+        target_angle = merged_data['target_angle'].to_numpy()
+        reference_power = merged_data['reference_power'].to_numpy()
+        reference_angle = merged_data['reference_angle'].to_numpy()
         training_features = np.column_stack([reference_power,
                                              target_angle,
                                              reference_angle])
+        kernel_features = turbine_kernel(training_features, training_features)
 
-        regressor = TransformedTargetRegressor(regressor=kernel,
+        kernel_ridge_regressor = KernelRidge(kernel='precomputed', alpha=0.001)
+        regressor = TransformedTargetRegressor(regressor=kernel_ridge_regressor,
                                                func=np.log1p,
                                                inverse_func=np.expm1)
-        regressor.fit(training_features, target_power)
+        regressor.fit(kernel_features, target_power)
 
         regressors[reference_id] = regressor
 

@@ -282,17 +282,20 @@ class TurbineData:
         Removes times where any turbine is not functioning normaly.
         Best to run after running select turbines
         """
-        if verbose:
-            print(f'Data shape before selecting normal operation turbines: \
-                    {self.data.shape}')
+        if self.data_type == 'np.ndarray':
+            if verbose:
+                print(f'Data shape before selecting normal operation turbines: \
+                        {self.data.shape}')
 
-        flag = np.all((self.data[:, :, -1]).astype(bool), axis=1)
-        self.data = self.data[flag]
-        self.data_label = self.data_label[flag]
+            flag = np.all((self.data[:, :, -1]).astype(bool), axis=1)
+            self.data = self.data[flag]
+            self.data_label = self.data_label[flag]
 
-        if verbose:
-            print(f'Data shape after selecting normal operation turbines: \
-                    {self.data.shape}')
+            if verbose:
+                print(f'Data shape after selecting normal operation turbines: \
+                        {self.data.shape}')
+        elif self.data_type == 'pd.DataFrame':
+            self.data.query('value == 1', inplace=True)
 
     def select_unsaturated_times(self, cutoff=1900, verbose=False):
         """
@@ -408,7 +411,7 @@ class TurbineData:
 
         def f(row):
             if row['instanceID'] == row['other_id']:
-                return
+                return row
 
             turbine_position = np.array([row['Easting'], row['Northing']])
             other_position = np.array([row['other_easting'],
@@ -423,18 +426,40 @@ class TurbineData:
                 row['affected'] = 1
                 print(row)
 
-        df.apply(f, axis=1)
-        df = df[df['affected'] == 1][['ts', 'other_id']]
-        
+            return row
+
+        dfs = np.array_split(df, 200)
+        print(dfs)
+        fr = 0
+        for frame in dfs:
+            fr = fr + 1
+
+            frame = frame.apply(f, axis=1)
+            print(frame)
+            frame = frame[frame['affected'] == 1]
+            frame_prime = frame[['ts', 'other_id']]
+            
+            frame_prime.to_csv(f'wake_affected/{fr}_wake_affected.csv')
+            print(f'Saved frame {fr}')
+
+        self.merge_wake_affected_data()
+
+    def merge_wake_affected_data(self):
+        dfs = []
+        for fr in range(1, 201):
+            dfs.append(pd.read_csv(f'wake_affected/{fr}_wake_affected.csv'))
+
+        df = pd.concat(dfs)
+        df.drop(columns=['Unnamed: 0'])
+
         self.data = pd.merge(self.data, df,
                              left_on=['ts', 'instanceID'],
                              right_on=['ts', 'other_id'],
                              how='outer',
                              indicator=True) \
                       .query('_merge == "left_only"') \
-                      .drop(['_merge', 'other_id'], axis=1)
-
-        return df
+                      .drop(['_merge', 'other_id', 'Unnamed: 0'], axis=1)
+        
 
 
 def load_data(path: str, data_type: str, flag: bool = False):
