@@ -1,15 +1,11 @@
 from datetime import datetime
 from dateutil import parser
 import os
-<<<<<<< HEAD
-=======
 from pathlib import Path
->>>>>>> 817f83219927bf9b5133d9a289e36850c3ed6a43
 
 import pandas as pd
 import numpy as np 
 from tqdm import tqdm
-
 
 
 class TurbineData:
@@ -138,33 +134,15 @@ class TurbineData:
         For CAU:  < 30/06/2020
         """
         if self.data_type == 'pd.DataFrame':
-<<<<<<< HEAD
-            def compare_datetime(timestamp, baseline):
-                """
-                Convert a timestamp in the turbine dataframe to a Python
-                datetime object, and compare it against the baseline change
-                datetime.
-                """
-                timestamp = parser.parse(timestamp)
-
-                return timestamp <= baseline
-=======
             self.data['ts'] = pd.to_datetime(self.data['ts'], 
                                              format='%d-%b-%Y %H:%M:%S')
->>>>>>> 817f83219927bf9b5133d9a289e36850c3ed6a43
 
             if self.farm == 'ARD':
                 baseline = parser.parse('01-Jun-2020 00:00:00')
             elif self.farm == 'CAU':
                 baseline = parser.parse('30-Jun-2020 00:00:00')
 
-<<<<<<< HEAD
-            timestamps = self.data.ts.apply(lambda ts:
-                    compare_datetime(ts, baseline)) 
-
-=======
             timestamps = self.data['ts'] <= baseline
->>>>>>> 817f83219927bf9b5133d9a289e36850c3ed6a43
             baseline_data = self.data[timestamps]
             
             if inplace:
@@ -483,8 +461,6 @@ class TurbineData:
         df = pd.concat(dfs)
         df.drop(columns=['Unnamed: 0'])
 
-<<<<<<< HEAD
-=======
             return row
 
         dfs = np.array_split(df, 200)
@@ -512,7 +488,6 @@ class TurbineData:
         df = pd.concat(dfs)
         df.drop(columns=['Unnamed: 0'])
 
->>>>>>> 817f83219927bf9b5133d9a289e36850c3ed6a43
         self.data = pd.merge(self.data, df,
                              left_on=['ts', 'instanceID'],
                              right_on=['ts', 'other_id'],
