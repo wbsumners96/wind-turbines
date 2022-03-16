@@ -295,17 +295,21 @@ class TurbineData:
         curve.
         Best to run after running select turbines
         """
-        if verbose:
-            print(f'Data shape before selecting unsaturated turbines: \
-                    {self.data.shape}')
+        if self.data_type == 'np.ndarray':
+            if verbose:
+                print(f'Data shape before selecting unsaturated turbines: \
+                        {self.data.shape}')
 
-        flag = np.all((self.data[:, :, 2] < cutoff).astype(bool), axis=1)
-        self.data = self.data[flag]
-        self.data_label = self.data_label[flag]
+            flag = np.all((self.data[:, :, 2] < cutoff).astype(bool), axis=1)
+            self.data = self.data[flag]
+            self.data_label = self.data_label[flag]
 
-        if verbose:
-            print(f'Data shape after selecting unsaturated turbines: \
-                    {self.data.shape}')
+            if verbose:
+                print(f'Data shape after selecting unsaturated turbines: \
+                        {self.data.shape}')
+        elif self.data_type == 'pd.DataFrame':
+            unsaturated = self.data['Power'] < cutoff
+            self.data = self.data[unsaturated]
 
     def select_power_min(self,cutoff=10,verbose=False):
         """
