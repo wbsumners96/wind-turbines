@@ -5,6 +5,7 @@ import numpy as np
 from sklearn.kernel_ridge import KernelRidge
 from sklearn.compose import TransformedTargetRegressor
 from tqdm import tqdm
+from model.kernel_ridge_regressors import KernelRidgeRegressor
 
 
 def wind_direction_location(data_positions, time, targets, references,
@@ -66,7 +67,6 @@ def wind_direction_location(data_positions, time, targets, references,
 
         plt.show()
 
-
 def direction_power_histogram(data):
     """
     Plot histogram of wind directions and power outputs.
@@ -94,6 +94,9 @@ def direction_power_histogram(data):
 
 
 def prediction_measured_histogram(predictions, measurements):
+    """
+    Plot a 2D Heatmap of predicted vs measured powers
+    """
     plt.hist2d(measurements, predictions, bins=100, norm=mpl.colors.LogNorm(), 
             cmap='binary')
     plt.xlabel('Measured Power (kW)')
@@ -102,23 +105,26 @@ def prediction_measured_histogram(predictions, measurements):
 
 
 def visualize_cor_func_behaviour(X, Y, ys):
+    """
+    Visualises the behaviour of the power-angle pairwise regression
+    X and Y are measured reference and target data respectively,
+    ys is predicted data.
+    """
     cmap='binary'
-    x = X[:, 0]
-    xa = X[:, 1]
-    y = Y[:, 0]
-    ya = Y[:, 1]
+    x = X[:, 0]  # Power
+    xa = X[:, 1] # Angle
+    y = Y[:, 0]  # Power
+    ya = Y[:, 1] # Angle
 
     plt.scatter(x[::10], y[::10], label='Measured', alpha=0.05)
-    plt.scatter(x[1::10], ys[1::10, 0], label='Prediction (on test data)', 
-            alpha=0.05)
+    plt.scatter(x[1::10], ys[1::10, 0], label='Prediction (on test data)', alpha=0.05)
     plt.xlabel('Reference power')
     plt.legend()
     plt.ylabel('Target power')
     plt.show()
 
     plt.scatter(xa[::10], ya[::10], label='Measured', alpha=0.05)
-    plt.scatter(xa[1::10], ys[1::10, 1], label='Prediction (on test data)', 
-            alpha=0.05)
+    plt.scatter(xa[1::10], ys[1::10, 1], label='Prediction (on test data)', alpha=0.05)
 
     plt.xlabel('Reference angle')
     plt.legend()
@@ -149,8 +155,7 @@ def visualize_cor_func_behaviour(X, Y, ys):
     ax[0].set_ylabel(r'$P_i-P_j$')
     ax[0].set_title('Measured')
 
-    ax[1].hist2d(xa, (x-ys[:, 0]), norm=mpl.colors.LogNorm(), bins=100, 
-            cmap=cmap)
+    ax[1].hist2d(xa, (x-ys[:, 0]), norm=mpl.colors.LogNorm(), bins=100, cmap=cmap)
     ax[1].set_xlabel(r'$\theta_j$')
     ax[1].set_ylabel(r'$P_i-\hat{P}_j$')
     ax[1].set_title('Predicted')
@@ -212,7 +217,69 @@ def visualize_cor_func_behaviour(X, Y, ys):
     plt.show()
 
 
+def average_power_gain_curve_dataframes(data, regressor: KernelRidgeRegressor):
+    def all_predictions(data, regressor):
+        N = data.n_turbines
+        its = list(range(1, 2))
+
+        data.select_normal_operation_times()
+        # data_copy.select_unsaturated_times()
+        # data_copy.select_power_min()
+        
+        predictions_fr = regressor.predict(data, its, list(range(2, 16)), None)
+        
+        predictions = predictions_fr['predicted_power'].to_numpy()
+        measurements = predictions_fr['target_power'].to_numpy()
+        errors = predictions - measurements
+
+        print(predictions)
+        print(measurements)
+        print(errors)
+
+        return predictions, measurements, errors
+
+    _, measured, errors = all_predictions(data, regressor)
+
+    # Plots power errors as functions of measured powers, averaged over
+    # turbines, like Oli showed in meeting
+    M = np.array(measured, dtype=object).flatten()
+    E = np.array(errors, dtype=object).flatten()
+
+    M = np.array(M, dtype=float)
+    E = np.array(E, dtype=float)
+
+    h, xedges, yedges = np.histogram2d(M, E, bins=100, 
+            range=[[M.min(), M.max()], [E.min(), E.max()]])
+
+    plt.imshow(h.T, origin='lower', 
+            extent=[xedges[0], xedges[-1], yedges[0], yedges[-1]], 
+            interpolation='gaussian', cmap='Greens')
+
+    h_av = np.zeros(xedges.shape[0] - 1)
+    h_var = np.zeros(xedges.shape[0] - 1)
+    
+    for i in range(h_av.shape[0]):
+        h_av[i] = np.average(yedges[1:], weights=h[i])
+        h_var[i] = np.sqrt(np.average((yedges[1:] - h_av[i])**2, weights=h[i]))
+
+    plt.plot(xedges[:-1], h_av, color='red', label='Weighted average')
+    plt.plot(xedges[:-1], h_av + h_var, color='red', alpha=0.2, 
+            label='Standard deviation')
+    plt.plot(xedges[:-1], h_av - h_var, color='red', alpha=0.2)
+    plt.xlabel(r'$P$')
+    plt.ylabel(r'$\delta P$')
+    plt.colorbar()
+    plt.legend()
+    plt.show()
+
+
+
+
 def average_power_gain_curve(data, k_mat):
+    """
+    Produces a power gain curve averaged over every pair of
+    turbines in the farm. Expects data as np.array
+    """
     def all_predictions(data, k_mat):
         N = data.n_turbines
         its = list(range(N))
@@ -271,5 +338,3 @@ def average_power_gain_curve(data, k_mat):
     plt.colorbar()
     plt.legend()
     plt.show()
-
->>>>>>> 973e6b07a484740d26171d025483a269b97c1e88

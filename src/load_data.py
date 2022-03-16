@@ -1,9 +1,15 @@
 from datetime import datetime
 from dateutil import parser
 import os
+<<<<<<< HEAD
+=======
+from pathlib import Path
+>>>>>>> 817f83219927bf9b5133d9a289e36850c3ed6a43
 
 import pandas as pd
 import numpy as np 
+from tqdm import tqdm
+
 
 
 class TurbineData:
@@ -132,6 +138,7 @@ class TurbineData:
         For CAU:  < 30/06/2020
         """
         if self.data_type == 'pd.DataFrame':
+<<<<<<< HEAD
             def compare_datetime(timestamp, baseline):
                 """
                 Convert a timestamp in the turbine dataframe to a Python
@@ -141,15 +148,23 @@ class TurbineData:
                 timestamp = parser.parse(timestamp)
 
                 return timestamp <= baseline
+=======
+            self.data['ts'] = pd.to_datetime(self.data['ts'], 
+                                             format='%d-%b-%Y %H:%M:%S')
+>>>>>>> 817f83219927bf9b5133d9a289e36850c3ed6a43
 
             if self.farm == 'ARD':
                 baseline = parser.parse('01-Jun-2020 00:00:00')
             elif self.farm == 'CAU':
                 baseline = parser.parse('30-Jun-2020 00:00:00')
 
+<<<<<<< HEAD
             timestamps = self.data.ts.apply(lambda ts:
                     compare_datetime(ts, baseline)) 
 
+=======
+            timestamps = self.data['ts'] <= baseline
+>>>>>>> 817f83219927bf9b5133d9a289e36850c3ed6a43
             baseline_data = self.data[timestamps]
             
             if inplace:
@@ -303,17 +318,21 @@ class TurbineData:
         curve.
         Best to run after running select turbines
         """
-        if verbose:
-            print(f'Data shape before selecting unsaturated turbines: \
-                    {self.data.shape}')
+        if self.data_type == 'np.ndarray':
+            if verbose:
+                print(f'Data shape before selecting unsaturated turbines: \
+                        {self.data.shape}')
 
-        flag = np.all((self.data[:, :, 2] < cutoff).astype(bool), axis=1)
-        self.data = self.data[flag]
-        self.data_label = self.data_label[flag]
+            flag = np.all((self.data[:, :, 2] < cutoff).astype(bool), axis=1)
+            self.data = self.data[flag]
+            self.data_label = self.data_label[flag]
 
-        if verbose:
-            print(f'Data shape after selecting unsaturated turbines: \
-                    {self.data.shape}')
+            if verbose:
+                print(f'Data shape after selecting unsaturated turbines: \
+                        {self.data.shape}')
+        elif self.data_type == 'pd.DataFrame':
+            unsaturated = self.data['Power'] < cutoff
+            self.data = self.data[unsaturated]
 
     def select_power_min(self,cutoff=10,verbose=False):
         """
@@ -395,6 +414,18 @@ class TurbineData:
 
             return
 
+        turbines_path = Path('~/.turbines').expanduser()
+        if not turbines_path.is_dir():
+            os.mkdir(turbines_path)
+
+        wake_affected_path = Path('~/.turbines/wake_affected').expanduser()
+        if not wake_affected_path.is_dir():
+            os.mkdir(wake_affected_path)
+        else:
+            self.merge_wake_affected_data()
+
+            return
+
         non_operational = self.data[self.data.value == 0]
         non_operational = non_operational[['ts', 'instanceID', 'Easting',
             'Northing', 'Diameter', 'Wind_direction_calibrated']]
@@ -452,6 +483,36 @@ class TurbineData:
         df = pd.concat(dfs)
         df.drop(columns=['Unnamed: 0'])
 
+<<<<<<< HEAD
+=======
+            return row
+
+        dfs = np.array_split(df, 200)
+
+        fr = 0
+        for frame in tqdm(dfs):
+            fr = fr + 1
+
+            frame = frame.apply(f, axis=1)
+
+            frame = frame[frame['affected'] == 1]
+            frame_prime = frame[['ts', 'other_id']]
+            
+            frame_path = wake_affected_path / f'{fr}_wake_affected.csv'
+            frame_prime.to_csv(frame_path)
+
+        self.merge_wake_affected_data()
+
+    def merge_wake_affected_data(self):
+        dfs = []
+        for fr in range(1, 201):
+            dfs.append(pd.read_csv('~/.turbines/wake_affected/' + \
+                    f'{fr}_wake_affected.csv'))
+
+        df = pd.concat(dfs)
+        df.drop(columns=['Unnamed: 0'])
+
+>>>>>>> 817f83219927bf9b5133d9a289e36850c3ed6a43
         self.data = pd.merge(self.data, df,
                              left_on=['ts', 'instanceID'],
                              right_on=['ts', 'other_id'],
