@@ -133,24 +133,15 @@ class TurbineData:
         For CAU:  < 30/06/2020
         """
         if self.data_type == 'pd.DataFrame':
-            def compare_datetime(timestamp, baseline):
-                """
-                Convert a timestamp in the turbine dataframe to a Python
-                datetime object, and compare it against the baseline change
-                datetime.
-                """
-                timestamp = parser.parse(timestamp)
-
-                return timestamp <= baseline
+            self.data['ts'] = pd.to_datetime(self.data['ts'], 
+                                             format='%d-%b-%Y %H:%M%S')
 
             if self.farm == 'ARD':
                 baseline = parser.parse('01-Jun-2020 00:00:00')
             elif self.farm == 'CAU':
                 baseline = parser.parse('30-Jun-2020 00:00:00')
 
-            timestamps = self.data.ts.apply(lambda ts:
-                    compare_datetime(ts, baseline)) 
-
+            timestamps = self.data['ts'] <= baseline
             baseline_data = self.data[timestamps]
             
             if inplace:
