@@ -12,37 +12,6 @@ from tqdm import tqdm
 from .predictor import Predictor
 
 
-def periodic_kernel(theta_i, theta_j, variance=1, length=1, period=2*np.pi):
-    angle = (np.pi/period)*np.abs(theta_i - theta_j)
-    z = (-2/length*length)*(np.sin(angle)**2)
-
-    return variance*np.exp(z)
-
-def linear_kernel(power_i, power_j):
-    return power_i*power_j
-
-def laplacian_kernel(power_i, power_j):
-    return np.exp(-0.01*np.linalg.norm(power_i - power_j, ord=1))
-
-def turbine_kernel(x_i, x_j):
-    power_ref_i, theta_ref_i, theta_tar_i = x_i.T
-    power_ref_j, theta_ref_j, theta_tar_j = x_j.T
-
-    # power_cov = linear_kernel(power_ref_i, power_ref_j.reshape((-1, 1)))
-    power_cov = laplacian_kernel(power_ref_i, power_ref_j.reshape((-1, 1)))
-    theta_ref_cov = periodic_kernel(theta_ref_i,
-                                    theta_ref_j.reshape((-1, 1)),
-                                    length=10)
-    theta_tar_cov = periodic_kernel(theta_tar_i,
-                                    theta_tar_j.reshape((-1, 1)),
-                                    length=10)
-
-    # return np.exp(-0.01*np.linalg.norm(x_i[np.newaxis, :, :] - x_j[:,
-    #   np.newaxis, :], ord=1, axis=2))
-    
-    return power_cov*theta_ref_cov*theta_tar_cov
-
-
 class KernelRidgeRegressor(Predictor):
     @abstractmethod
     def kernel(self, x_i, x_j):
@@ -158,7 +127,7 @@ class KernelRidgeRegressor(Predictor):
         if not scores_dir.is_dir():
             os.mkdir(scores_dir)
 
-        for target_number in tqdm(range(1, 16), desc='Target'):
+        for target_number in tqdm(range(1, 16), desc='Target', leave=False):
             target_id = f'ARD_WTG{target_number:02}'
             target = data.select_turbine(target_id)
             target = target[['ts',
@@ -173,7 +142,9 @@ class KernelRidgeRegressor(Predictor):
             target_regressors = {}
             target_scores = {}
             target_features_train = {}
-            for reference_number in tqdm(range(1, 16), desc='Reference'):
+            for reference_number in tqdm(range(1, 16),
+                                         desc='Reference',
+                                         leave=False):
                 reference_id = f'ARD_WTG{reference_number:02}'
                 if target_number == reference_number:
                     target_regressors[reference_id] = None
@@ -246,4 +217,50 @@ class LaplacianKRR(KernelRidgeRegressor):
     def kernel(self, x_i, x_j):
         return np.exp(-0.01*np.linalg.norm(x_i[np.newaxis, :, :] - x_j[:,
                 np.newaxis, :], ord=1, axis=2))
+
+
+class PowerLaplacianKRR(KernelRidgeRegressor):
+    def kernel(self, x_i, x_j):
+        power_ref_i, _, _ = x_i.T
+        power_ref_j, _, _ = x_j.T
+
+        def laplacian_kernel(power_i, power_j):
+            return np.exp(-0.01*np.abs(power_i - power_j))
+
+        return laplacian_kernel(power_ref_i, power_ref_j.reshape((-1, 1)))
+
+
+class RadialBasisKRR(KernelRidgeRegressor):
+    def kernel(self, x_i, x_j):
+        return np.exp(-0.01*np.linalg.norm(x_i[np.newaxis, :, :] - x_j[:,
+            np.newaxis, :], axis=2))
+
+
+class PeriodicLaplacianKRR(KernelRidgeRegressor):
+    def kernel(self, x_i, x_j):
+        def periodic_kernel(theta_i, theta_j, 
+                            variance=1, 
+                            length=1, 
+                            period=2*np.pi):
+            angle = (np.pi/period)*np.abs(theta_i - theta_j)
+            z = (-2/length*length)*(np.sin(angle)**2)
+
+            return variance*np.exp(z)
+
+        def laplacian_kernel(power_i, power_j):
+            return np.exp(-0.01*np.abs(power_i - power_j))
+
+        power_ref_i, theta_ref_i, theta_tar_i = x_i.T
+        power_ref_j, theta_ref_j, theta_tar_j = x_j.T
+
+        # power_cov = linear_kernel(power_ref_i, power_ref_j.reshape((-1, 1)))
+        power_cov = laplacian_kernel(power_ref_i, power_ref_j.reshape((-1, 1)))
+        theta_ref_cov = periodic_kernel(theta_ref_i,
+                                        theta_ref_j.reshape((-1, 1)),
+                                        length=10)
+        theta_tar_cov = periodic_kernel(theta_tar_i,
+                                        theta_tar_j.reshape((-1, 1)),
+                                        length=10)
+
+        return power_cov * theta_ref_cov * theta_tar_cov
 

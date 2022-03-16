@@ -220,8 +220,8 @@ def visualize_cor_func_behaviour(X, Y, ys):
 def average_power_gain_curve_dataframes(data, predictor):
     def all_predictions(data, regressor):
         N = data.n_turbines
-        targets = list(range(1, 2))
-        references = list(range(2, 16))
+        targets = list(range(1, 16))
+        references = list(range(1, 16))
 
         data.select_normal_operation_times()
         # data_copy.select_unsaturated_times()
