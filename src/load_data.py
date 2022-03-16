@@ -1,6 +1,7 @@
 from datetime import datetime
 from dateutil import parser
 import os
+from pathlib import Path
 
 import pandas as pd
 import numpy as np 
@@ -389,6 +390,18 @@ class TurbineData:
 
             return
 
+        turbines_path = Path('~/.turbines').expanduser()
+        if not turbines_path.is_dir():
+            os.mkdir(turbines_path)
+
+        wake_affected_path = Path('~/.turbines/wake_affected').expanduser()
+        if not wake_affected_path.is_dir():
+            os.mkdir(wake_affected_path)
+        else:
+            self.merge_wake_affected_data()
+
+            return
+
         non_operational = self.data[self.data.value == 0]
         non_operational = non_operational[['ts', 'instanceID', 'Easting',
             'Northing', 'Diameter', 'Wind_direction_calibrated']]
@@ -422,7 +435,7 @@ class TurbineData:
             return row
 
         dfs = np.array_split(df, 200)
-        print(dfs)
+
         fr = 0
         for frame in tqdm(dfs):
             fr = fr + 1
@@ -432,7 +445,8 @@ class TurbineData:
             frame = frame[frame['affected'] == 1]
             frame_prime = frame[['ts', 'other_id']]
             
-            frame_prime.to_csv(f'wake_affected/{fr}_wake_affected.csv')
+            frame_path = wake_affected_path / f'{fr}_wake_affected.csv'
+            frame_prime.to_csv(frame_path)
 
         self.merge_wake_affected_data()
 
