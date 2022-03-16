@@ -134,7 +134,7 @@ class TurbineData:
         """
         if self.data_type == 'pd.DataFrame':
             self.data['ts'] = pd.to_datetime(self.data['ts'], 
-                                             format='%d-%b-%Y %H:%M%S')
+                                             format='%d-%b-%Y %H:%M:%S')
 
             if self.farm == 'ARD':
                 baseline = parser.parse('01-Jun-2020 00:00:00')
