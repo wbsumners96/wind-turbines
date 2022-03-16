@@ -137,9 +137,11 @@ class WeightedAverage(Predictor):
                          for reference in references]
 
         # Restrict data to given time and separate into targets and references
-        current_data = data.query('ts == @times')
-        target_data = current_data.query('instanceID == @target_ids')
-        reference_data = current_data.query('instanceID == @reference_ids')
+        if times is not None:
+            data = data.query('ts == @times')
+
+        target_data = data.query('instanceID == @target_ids')
+        reference_data = data.query('instanceID == @reference_ids')
 
         # Get vector of distances from target turbines to reference turbines
         target_positions = target_data[['Easting', 'Northing']].to_numpy()

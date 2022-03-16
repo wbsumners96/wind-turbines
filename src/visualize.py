@@ -217,20 +217,21 @@ def visualize_cor_func_behaviour(X, Y, ys):
 def average_power_gain_curve_dataframes(data, regressor: KernelRidgeRegressor):
     def all_predictions(data, regressor):
         N = data.n_turbines
-        its = list(range(N))
-        predictions = [[] for _ in range(N)]
-        measurements = [[] for _ in range(N)]
-        errors = [[] for _ in range(N)]
+        its = list(range(1, 2))
 
         data.select_normal_operation_times()
         # data_copy.select_unsaturated_times()
         # data_copy.select_power_min()
-
-        predictions_fr = regressor.predict(data, its, its, None)
+        
+        predictions_fr = regressor.predict(data, its, list(range(2, 16)), None)
         
         predictions = predictions_fr['predicted_power'].to_numpy()
         measurements = predictions_fr['target_power'].to_numpy()
         errors = predictions - measurements
+
+        print(predictions)
+        print(measurements)
+        print(errors)
 
         return predictions, measurements, errors
 
