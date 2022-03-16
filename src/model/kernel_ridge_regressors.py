@@ -33,9 +33,12 @@ class KernelRidgeRegressor(Predictor):
         raise NotImplementedError()
 
     def predict(self, data, targets, references, times=None):
-        target_ids = [f'ARD_WTG{target_number:02}' for target_number in targets]
-        reference_ids = [f'ARD_WTG{reference_number:02}' for reference_number 
-                in references]
+        target_ids = [f'{data.farm}_WTG{target_number:02}'
+                      for target_number
+                      in targets]
+        reference_ids = [f'{data.farm}_WTG{reference_number:02}'
+                         for reference_number 
+                         in references]
 
         targets = data.data.query('instanceID == @target_ids')
         references = data.data.query('instanceID == @reference_ids')
@@ -128,7 +131,7 @@ class KernelRidgeRegressor(Predictor):
             os.mkdir(scores_dir)
 
         for target_number in tqdm(range(1, 16), desc='Target', leave=False):
-            target_id = f'ARD_WTG{target_number:02}'
+            target_id = f'{data.farm}_WTG{target_number:02}'
             target = data.select_turbine(target_id)
             target = target[['ts',
                              'instanceID',
@@ -145,7 +148,7 @@ class KernelRidgeRegressor(Predictor):
             for reference_number in tqdm(range(1, 16),
                                          desc='Reference',
                                          leave=False):
-                reference_id = f'ARD_WTG{reference_number:02}'
+                reference_id = f'{data.farm}_WTG{reference_number:02}'
                 if target_number == reference_number:
                     target_regressors[reference_id] = None
                     target_scores[reference_id] = None
