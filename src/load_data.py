@@ -1,6 +1,10 @@
+from datetime import datetime
+from dateutil import parser
 import os
+
 import pandas as pd
 import numpy as np 
+
 
 class TurbineData:
     def __init__(self, path, farm):
@@ -121,15 +125,44 @@ class TurbineData:
 
             self.data_type = 'pd.DataFrame'
 
-    def select_baseline(self):
+    def select_baseline(self, inplace=False):
         """
         Selects data before the configuration changes
         For ARD:  < 01/06/2020
         For CAU:  < 30/06/2020
         """
         if self.data_type == 'pd.DataFrame':
-            print('Not yet implemented for DataFrame')
+            def compare_datetime(timestamp, baseline):
+                """
+                Convert a timestamp in the turbine dataframe to a Python
+                datetime object, and compare it against the baseline change
+                datetime.
+                """
+                timestamp = parser.parse(timestamp)
+
+                return timestamp <= baseline
+
+            if self.farm == 'ARD':
+                baseline = parser.parse('01-Jun-2020 00:00:00')
+            elif self.farm == 'CAU':
+                baseline = parser.parse('30-Jun-2020 00:00:00')
+
+            timestamps = self.data.ts.apply(lambda ts:
+                    compare_datetime(ts, baseline)) 
+
+            baseline_data = self.data[timestamps]
+            
+            if inplace:
+                self.data = baseline_data
+
+            return baseline_data
         elif self.data_type == 'np.ndarray':
+            if not inplace:
+                print('Selecting baseline configuration datetimes for \
+                        numpy arrays has not been implemented in the non- \
+                        inplace case')
+
+                return
             if self.farm == 'ARD':
                 i = np.argwhere(self.data_label[:, 0, 0] 
                         == '01-Jun-2020 00:00:00')[0, 0]
@@ -140,33 +173,26 @@ class TurbineData:
             self.data = self.data[:i]
             self.data_label = self.data_label[:i]
 
-            
-
     def select_new_phase(self):
         """
         Selects data before the configuration changes
         For ARD:  < 01/06/2020
         For CAU:  < 30/06/2020
         """
+        if self.data_type == 'pd.DataFrame':
+            print('Not yet implemented for DataFrame')
+            
+            return
+        elif self.data_type == 'np.ndarray':
+            if self.farm == 'ARD':
+                condition = self.data_label[:, 0, 0] == '10-Sep-2020 00:00:00'
+                i = np.argwhere(condition)[0,0]
+            elif self.farm == 'CAU':
+                condition = self.data_label[:, 0, 0] == '19-Oct-2020 00:00:00'
+                i = np.argwhere(condition)[0,0]
 
-        
-        if self.data_type=="pd.DataFrame":
-            print("Not yet implemented for DataFrame")
-            #if self.farm=="ARD":
-            #    i = list(np.where(self.data.ts=='01-Jun-2020 00:00:00'))
-            #elif self.farm=="CAU":
-            #    i = list(np.where(self.data.ts=='30-Jun-2020 00:00:00'))
-            #print(i)
-            #print(self.data.iloc[i])
-            #self.data = self.data[:i]
-        elif self.data_type=="np.ndarray":
-            if self.farm=="ARD":
-                i = np.argwhere(self.data_label[:,0,0]=='10-Sep-2020 00:00:00')[0,0]
-            elif self.farm=="CAU":
-                i = np.argwhere(self.data_label[:,0,0]=='19-Oct-2020 00:00:00')[0,0]
             self.data = self.data[i:]
             self.data_label = self.data_label[i:]
-
 
     def select_time(self, time, verbose=False):
         """
@@ -190,7 +216,7 @@ class TurbineData:
             self.data = data[time]
             self.data_label = self.data_label[time]
 
-    def select_turbine(self, turbine, verbose=False):
+    def select_turbine(self, turbine, inplace=False, verbose=False):
         """
         Return the data for one wind turbine (or a set of turbines) across all 
         times.
@@ -208,11 +234,21 @@ class TurbineData:
         data = self.data
         if verbose:
             print(f'Selected turbine {data.instanceID[turbine]}')
+
         if self.data_type == 'pd.DataFrame':
-            return data[data.instanceID == data.instanceID[turbine]]
+            turbine_data = data[data.instanceID == turbine]
+            if inplace:
+                self.data = turbine_data
+
+            return turbine_data
         elif self.data_type == 'np.ndarray':
-            self.data = data[:, turbine]
-            self.data_label = self.data_label[:, turbine]
+            turbine_data = data[:, turbine]
+            turbine_data_label = self.data_label[:, turbine]
+            if inplace:
+                self.data = turbine_data
+                self.data_label = turbine_data_label
+
+            return turbine_data, turbine_data_label
 
     def select_wind_direction(self, direction, width, verbose=False):
         """
@@ -246,17 +282,20 @@ class TurbineData:
         Removes times where any turbine is not functioning normaly.
         Best to run after running select turbines
         """
-        if verbose:
-            print(f'Data shape before selecting normal operation turbines: \
-                    {self.data.shape}')
+        if self.data_type == 'np.ndarray':
+            if verbose:
+                print(f'Data shape before selecting normal operation turbines: \
+                        {self.data.shape}')
 
-        flag = np.all((self.data[:, :, -1]).astype(bool), axis=1)
-        self.data = self.data[flag]
-        self.data_label = self.data_label[flag]
+            flag = np.all((self.data[:, :, -1]).astype(bool), axis=1)
+            self.data = self.data[flag]
+            self.data_label = self.data_label[flag]
 
-        if verbose:
-            print(f'Data shape after selecting normal operation turbines: \
-                    {self.data.shape}')
+            if verbose:
+                print(f'Data shape after selecting normal operation turbines: \
+                        {self.data.shape}')
+        elif self.data_type == 'pd.DataFrame':
+            self.data.query('value == 1', inplace=True)
 
     def select_unsaturated_times(self, cutoff=1900, verbose=False):
         """
@@ -282,14 +321,15 @@ class TurbineData:
         Best to run after running select turbines
         """
         if verbose:
-            print("Data shape before selecting higher power turbines: "+str(self.data.shape))
-        flag = np.all((self.data[:,:,2]>cutoff).astype(bool),axis=1)
+            print(f'Data shape before selecting higher power turbines: \
+                    {self.data.shape}')
+
+        flag = np.all((self.data[:, :, 2] > cutoff).astype(bool), axis=1)
         self.data = self.data[flag]
         self.data_label = self.data_label[flag]
         if verbose:
-            print("Data shape after selecting higher power turbines: "+str(self.data.shape))
-
-
+            print(f'Data shape after selecting higher power turbines: \
+                    {self.data.shape}')
 
     def nan_to_zero(self):
         """
@@ -329,8 +369,8 @@ class TurbineData:
                 Diameter of turbine blades in meters.
             """
             def iec_function(blade_diameters):
-                return (180*1.3/np.pi)*np.arctan(2.5/blade_diameters + 0.15)\
-                        + 10
+                return 1.3*np.arctan(2.5/blade_diameters + 0.15)\
+                        + np.pi*10/180
 
             wind_vector = np.array([np.sin(np.pi*wind_heading/180),
                                     np.cos(np.pi*wind_heading/180)])
@@ -342,8 +382,10 @@ class TurbineData:
                     /blade_diameter 
 
             if turbine_distance <= 2:
+                print('too close')
                 return True
             if turbine_distance > 20:
+                print('too far')
                 return False
 
             return angle_to_wind <= iec_function(turbine_distance)
@@ -356,10 +398,10 @@ class TurbineData:
         non_operational = self.data[self.data.value == 0]
         non_operational = non_operational[['ts', 'instanceID', 'Easting',
             'Northing', 'Diameter', 'Wind_direction_calibrated']]
-        turbine_positions = {'other_id': self.data.instanceID,
+        turbine_positions = {'other_id': self.data['instanceID'],
                              'other_easting': self.data['Easting'],
                              'other_northing': self.data['Northing']}
-        turbine_positions = pd.DataFrame(turbine_positions)
+        turbine_positions = pd.DataFrame(turbine_positions).drop_duplicates()
 
         # an unfortunate hack to perform a cross join.
         non_operational['cross'] = 0
@@ -369,7 +411,7 @@ class TurbineData:
 
         def f(row):
             if row['instanceID'] == row['other_id']:
-                return
+                return row
 
             turbine_position = np.array([row['Easting'], row['Northing']])
             other_position = np.array([row['other_easting'],
@@ -382,17 +424,42 @@ class TurbineData:
                             wind_heading,
                             blade_diameter):
                 row['affected'] = 1
+                print(row)
 
-        df.apply(f, axis=1)
-        df = df[df['affected'] == 1][['ts', 'other_id']]
-        
+            return row
+
+        dfs = np.array_split(df, 200)
+        print(dfs)
+        fr = 0
+        for frame in dfs:
+            fr = fr + 1
+
+            frame = frame.apply(f, axis=1)
+            print(frame)
+            frame = frame[frame['affected'] == 1]
+            frame_prime = frame[['ts', 'other_id']]
+            
+            frame_prime.to_csv(f'wake_affected/{fr}_wake_affected.csv')
+            print(f'Saved frame {fr}')
+
+        self.merge_wake_affected_data()
+
+    def merge_wake_affected_data(self):
+        dfs = []
+        for fr in range(1, 201):
+            dfs.append(pd.read_csv(f'wake_affected/{fr}_wake_affected.csv'))
+
+        df = pd.concat(dfs)
+        df.drop(columns=['Unnamed: 0'])
+
         self.data = pd.merge(self.data, df,
                              left_on=['ts', 'instanceID'],
                              right_on=['ts', 'other_id'],
                              how='outer',
                              indicator=True) \
                       .query('_merge == "left_only"') \
-                      .drop(['_merge', 'other_id'], axis=1)
+                      .drop(['_merge', 'other_id', 'Unnamed: 0'], axis=1)
+        
 
 
 def load_data(path: str, data_type: str, flag: bool = False):

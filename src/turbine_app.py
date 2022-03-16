@@ -68,9 +68,20 @@ class TurbineApp:
 		print(self.data.data.info())
 		
 
+	def clean_data(self):
+		"""
+		Performs pre-processing operations on the data.
+		"""
+		self.data.select_baseline()
+		# self.data.select_wind_direction(...) do we need this?
+		# TODO select wake affected turbines based on user input
+		self.data.select_normal_operation_times()
+		self.data.select_unsaturated_times() # check the cleaning order here
+
+
 	def create_predictors(self):
 		"""
-		Creates predictor objects.
+		Creates a predictor object for each model.
 		"""
 		for i in range(len(self.models)):
 			new_predictor = self.models[i](**self.predictor_parameters[i])
@@ -78,10 +89,9 @@ class TurbineApp:
 
 	def run_predictions(self):
 		"""
-		Returns a list of predictions (one from each predictor object).
+		Returns a list of predictions (one for each model).
 		"""
 		results = []
-
 		for predictor in self.predictors:
 			results.append(predictor.predict(self.data,
 											 self.targets,
@@ -89,7 +99,10 @@ class TurbineApp:
 											 self.times))
 		return results
 
-	def minimize_errors(self):
+	def run(self):
 		"""
-		Minimizes the errors for each prediction.
+		Cleans the data, creates predictor objects, and runs predictions.
 		"""
+		clean_data()
+		create_predictors()
+		run_predictions()

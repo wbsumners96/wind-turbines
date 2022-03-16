@@ -111,4 +111,9 @@ feedback on the report outline
 - explain the underlying mechanisms of the functions we use and why they were reasonable choices
 - move wake effects discussion into the "Data" section
 
-## Upcoming Meeting: Thursday 10 March 09:00
+## 10 March 2022
+feedback on figures to be put in report
+- include a legend and description/explanation for UML diagram
+- change UML formatting to portrait
+
+## Upcoming Meeting: Thursday 17 March 09:00
