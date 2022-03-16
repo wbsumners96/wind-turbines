@@ -379,8 +379,10 @@ class TurbineData:
                     /blade_diameter 
 
             if turbine_distance <= 2:
+                print('too close')
                 return True
             if turbine_distance > 20:
+                print('too far')
                 return False
 
             return angle_to_wind <= iec_function(turbine_distance)
@@ -431,6 +433,33 @@ class TurbineData:
                             wind_heading,
                             blade_diameter):
                 row['affected'] = 1
+                print(row)
+
+            return row
+
+        dfs = np.array_split(df, 200)
+        print(dfs)
+        fr = 0
+        for frame in dfs:
+            fr = fr + 1
+
+            frame = frame.apply(f, axis=1)
+            print(frame)
+            frame = frame[frame['affected'] == 1]
+            frame_prime = frame[['ts', 'other_id']]
+            
+            frame_prime.to_csv(f'wake_affected/{fr}_wake_affected.csv')
+            print(f'Saved frame {fr}')
+
+        self.merge_wake_affected_data()
+
+    def merge_wake_affected_data(self):
+        dfs = []
+        for fr in range(1, 201):
+            dfs.append(pd.read_csv(f'wake_affected/{fr}_wake_affected.csv'))
+
+        df = pd.concat(dfs)
+        df.drop(columns=['Unnamed: 0'])
 
             return row
 

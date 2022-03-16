@@ -5,7 +5,6 @@ import numpy as np
 from sklearn.kernel_ridge import KernelRidge
 from sklearn.compose import TransformedTargetRegressor
 from tqdm import tqdm
-
 from model.kernel_ridge_regressors import KernelRidgeRegressor
 
 
@@ -67,7 +66,6 @@ def wind_direction_location(data_positions, time, targets, references,
             plt.savefig(filename, format='png')
 
         plt.show()
-
 
 def direction_power_histogram(data):
     """
@@ -341,4 +339,3 @@ def average_power_gain_curve(data, k_mat):
     plt.colorbar()
     plt.legend()
     plt.show()
-
