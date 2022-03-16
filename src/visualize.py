@@ -96,6 +96,9 @@ def direction_power_histogram(data):
 
 
 def prediction_measured_histogram(predictions, measurements):
+    """
+    Plot a 2D Heatmap of predicted vs measured powers
+    """
     plt.hist2d(measurements, predictions, bins=100, norm=mpl.colors.LogNorm(), 
             cmap='binary')
     plt.xlabel('Measured Power (kW)')
@@ -104,23 +107,26 @@ def prediction_measured_histogram(predictions, measurements):
 
 
 def visualize_cor_func_behaviour(X, Y, ys):
+    """
+    Visualises the behaviour of the power-angle pairwise regression
+    X and Y are measured reference and target data respectively,
+    ys is predicted data.
+    """
     cmap='binary'
-    x = X[:, 0]
-    xa = X[:, 1]
-    y = Y[:, 0]
-    ya = Y[:, 1]
+    x = X[:, 0]  # Power
+    xa = X[:, 1] # Angle
+    y = Y[:, 0]  # Power
+    ya = Y[:, 1] # Angle
 
     plt.scatter(x[::10], y[::10], label='Measured', alpha=0.05)
-    plt.scatter(x[1::10], ys[1::10, 0], label='Prediction (on test data)', 
-            alpha=0.05)
+    plt.scatter(x[1::10], ys[1::10, 0], label='Prediction (on test data)', alpha=0.05)
     plt.xlabel('Reference power')
     plt.legend()
     plt.ylabel('Target power')
     plt.show()
 
     plt.scatter(xa[::10], ya[::10], label='Measured', alpha=0.05)
-    plt.scatter(xa[1::10], ys[1::10, 1], label='Prediction (on test data)', 
-            alpha=0.05)
+    plt.scatter(xa[1::10], ys[1::10, 1], label='Prediction (on test data)', alpha=0.05)
 
     plt.xlabel('Reference angle')
     plt.legend()
@@ -151,8 +157,7 @@ def visualize_cor_func_behaviour(X, Y, ys):
     ax[0].set_ylabel(r'$P_i-P_j$')
     ax[0].set_title('Measured')
 
-    ax[1].hist2d(xa, (x-ys[:, 0]), norm=mpl.colors.LogNorm(), bins=100, 
-            cmap=cmap)
+    ax[1].hist2d(xa, (x-ys[:, 0]), norm=mpl.colors.LogNorm(), bins=100, cmap=cmap)
     ax[1].set_xlabel(r'$\theta_j$')
     ax[1].set_ylabel(r'$P_i-\hat{P}_j$')
     ax[1].set_title('Predicted')
@@ -270,7 +275,13 @@ def average_power_gain_curve_dataframes(data, regressor: KernelRidgeRegressor):
     plt.show()
 
 
+
+
 def average_power_gain_curve(data, k_mat):
+    """
+    Produces a power gain curve averaged over every pair of
+    turbines in the farm. Expects data as np.array
+    """
     def all_predictions(data, k_mat):
         N = data.n_turbines
         its = list(range(N))
