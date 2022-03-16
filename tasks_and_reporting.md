@@ -105,9 +105,9 @@ Presentation preparation
 - [x] implement wake effects-based data cleaning
 - [x] learn how kernel ridge regression works (in context of determining which
   hyperparameters we chose
-- alex and I decided it would be reasonable to model P_target ~ (P_ref, 
-angle_ref, angle_tar) rather than (P_tar, angle_tar) ~ (P_ref, angle_ref) like we 
-were doing before 
+- Alex and I decided it would be reasonable to model `P_target ~ (P_ref, 
+angle_ref, angle_tar)` rather than `(P_tar, angle_tar) ~ (P_ref, angle_ref)`
+like we were doing before
 - we can now use kernel ridge regression for custom kernels. I just ran the 
 fitting on the data-at-baseline-configuration-normal-operation-consistenct-wake-
 effect that I've got using a kernel which is periodic in the angles. takes about 
@@ -115,6 +115,9 @@ a minute to run which is pretty gud
 - for tomorrow: need to figure out how to visualize and score the results so we can compare a bunch of different kernels and put appropriate ones in the report
 
 ### Mary
+- [x] draft abstract, introduction, data (excluding wake effects), and conclusio
+  sections of the report
+- [x] draft executive summary
 - [ ] integrate existing code/features with existing code structure
 - [ ] refactor code
 - [ ] add file info to README

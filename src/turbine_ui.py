@@ -35,17 +35,15 @@ def main():
 	app.targets, app.references = select_turbines()
 	print(f'Targets selected: {app.targets}')
 	print(f'References selected: {app.references}')
-	# app.times = select_times(app)
 	app.times = app.data.data.loc[:,'ts'] # selecting all times
-	print('Selected all times by default.')
+	print('Running predictions over all times by default.')
 
 	# Run predictions
 	app.predictor_parameters = select_predictor_parameters(app)
-	app.create_predictors()
-	print('\nPredictor creation successful. Running predictions...')
-	results = app.run_predictions() # results is a list of dataframes
-	# app.minimize_errors()
+	print('\nCreating predictors and running predictions...')
+	results = app.run() # results is a list of dataframes
 
+	# TODO: replace with a call to visualize
 	# Display results
 	for result in results:
 		model_name = app.models[results.index(result)].__name__
@@ -171,76 +169,6 @@ def select_turbines():
 
 	# Return the lists of targets and references
 	return targets, references
-
-
-def select_times(app):
-	"""
-	Returns a datetime list of times selected by the user.
-
-	Parameters
-	----------
-	app : TurbineApp
-
-	Returns
-	-------
-	list of datetime
-		The times over which to run the predictions.
-	"""
-	selected_times = []
-
-	# Prompt to choose the format of time selection
-	print('\nChoose a time selection method:')
-	print('(A) All times\n(R) Range of times\n(I) Individual times\n(Q) Quit')
-	user_input = input()
-
-	# As long as the user does not select an option, display an error message
-	# and display the prompt again
-	while user_input != 'A' and user_input != 'a' and user_input != 'R' \
-							and user_input != 'r' and user_input != 'I' \
-							and user_input != 'i' and user_input != 'Q' \
-							and user_input != 'q':
-		print('Invalid selection.')
-		print('\nChoose a time selection method:')
-		print('(A) All times\n(R) Range of times\n(I) Individual times\n'
-			  + '(Q) Quit')
-		user_input = input()
-
-	# Terminate if the user quits
-	if user_input == 'Q' or user_input == 'q':
-		sys.exit()
-	elif user_input == 'A' or user_input == 'a':
-		selected_times.append(app.data.data)
-	elif user_input == 'R' or user_input == 'r':
-		# Prompt for the start and end times
-		print('Enter the start time of the range in the format [YYYY-MM-DD '
-			  + 'hh:mm:ss]: ', end='')
-		start_time = input()
-		print('Enter the end time of the range in the format [YYYY-MM-DD '
-			  + 'hh:mm:ss]: ', end='')
-		end_time = input()
-
-		# Get the desired time slice from the data
-		try:
-			start_time = datetime.datetime.fromisoformat(start_time)
-			end_time = datetime.datetime.fromisoformat(end_time)
-			selected_times.append(app.data.data[start_time:end_time])
-		except ValueError:
-			print('ValueError: Invalid time format.\n')
-	else:
-		# Prompt for individual times
-		print('Enter times in the format [YYYY-MM-DD hh:mm:ss] separated by'
-			  + ' commas: ', end='')
-		user_input = input()
-
-		# Get the user's list of times and convert them to datetime objects
-		try:
-			user_times = user_input.replace(', ', ',').split(',')
-			for time in user_times:
-				selected_times.append(datetime.datetime.fromisoformat(time))
-		except ValueError:
-			print('ValueError: Invalid time format.\n')
-
-	return selected_times
 
 
 def select_predictor_parameters(app):
