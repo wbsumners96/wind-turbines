@@ -13,7 +13,7 @@ class WeightedAverage(Predictor):
         Calls predict_tensor or predict_pd depending on datatype
         """
         if data.data_type == "pd.DataFrame":
-            return self.predict_pd(data, targets, references, times)
+            return self.predict_pd(data, targets, references, None)
         if data.data_type == "np.ndarray":
             return self.predict_tensor(data, targets, references)
 
