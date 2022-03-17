@@ -435,13 +435,13 @@ class TurbineData:
             return row
 
         dfs = np.array_split(df, 200)
-        print(dfs)
+        # print(dfs)
         fr = 0
         for frame in tqdm(dfs, leave=False):
             fr = fr + 1
 
             frame = frame.apply(f, axis=1)
-            print(frame)
+            # print(frame)
             frame = frame[frame['affected'] == 1]
             frame_prime = frame[['ts', 'other_id']]
             

@@ -12,31 +12,34 @@ class TurbineApp:
 
 	Attributes
 	----------
-	models : list of str
-		List of the desired models to run.
-	predictor_parameters : list of dict
-		List of dictionaries where each dictionary contains the parameters
-		needed to create a predictor.
-	path : str
+	data_path : str
 		The path to the directory where the data is located.
 	farm : str
 		The wind farm to use (either ARD or CAU).
+	data: TurbineData
+		The data to run the models with.	
+	models : list of str
+		List of the desired models to run.
+	remove_wake_affected: boolean
+		Whether to remove wake affected turbines in data cleaning.
+	predictor_parameters : list of dict
+		List of dictionaries where each dictionary contains the parameters
+		needed to create a predictor.
 	targets : list of int
 		List of ID numbers of target turbines.
 	references : list of int
 		List of ID numbers of reference turbines.
 	times : list of datetime
 		List of times over which the models should be run.
-	data: TurbineData
-		The data to run the models with.	
 	predictors : list of Predictor objects
 		The predictors created.
 	"""
 	def __init__(self, data_path, farm):
 		self.data_path = data_path
 		self.farm = farm
-		#self.data = None
+		self.data = None
 		self.models = []
+		self.remove_wake_affected = False
 		self.predictor_parameters = {}
 		self.predictors = []
 		self.targets = []
@@ -72,11 +75,16 @@ class TurbineApp:
 		"""
 		Performs pre-processing operations on the data.
 		"""
-		self.data.select_baseline()
-		# self.data.select_wind_direction(...) do we need this?
-		# TODO select wake affected turbines based on user input
+		if self.remove_wake_affected:
+			print('Removing wake affected turbines...', end='')
+			self.data.clear_wake_affected_turbines()
+			print('Success.')
+		print('Removing abnormally operating turbines...', end='')
 		self.data.select_normal_operation_times()
-		self.data.select_unsaturated_times() # check the cleaning order here
+		print('Success.')
+		print('Selecting times up to baseline configuration date...', end='')
+		self.data.select_baseline()
+		print('Success.')
 
 
 	def create_predictors(self):
@@ -92,17 +100,22 @@ class TurbineApp:
 		Returns a list of predictions (one for each model).
 		"""
 		results = []
+
 		for predictor in self.predictors:
 			results.append(predictor.predict(self.data,
 											 self.targets,
 											 self.references,
 											 self.times))
 		return results
-
+		
 	def run(self):
 		"""
 		Cleans the data, creates predictor objects, and runs predictions.
 		"""
-		clean_data()
-		create_predictors()
-		run_predictions()
+		print('\nStarting data cleaning...')
+		self.clean_data()
+		print('Data cleaning complete.\n\nCreating predictors...', end='')
+		self.create_predictors()
+		print('Success.\nRunning predictions...')
+		self.run_predictions()
+		print('Predictions complete.')
