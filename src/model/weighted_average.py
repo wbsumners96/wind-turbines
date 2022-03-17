@@ -8,6 +8,9 @@ class WeightedAverage(Predictor):
     def __init__(self, weighting):
         self.weighting = weighting
 
+    def fit(self, data):
+        pass
+
     def predict(self,data,targets,references,times=None):
         """
         Calls predict_tensor or predict_pd depending on datatype
@@ -171,5 +174,5 @@ class GaussianWeightedAverage(WeightedAverage):
         def weighting(distance):
             return np.exp(-gamma*distance*distance)
 
-
         super().__init__(weighting)
+

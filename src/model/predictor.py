@@ -48,6 +48,13 @@ class Predictor:
             At least one time doesn't exist in data. 
         """
         return NotImplementedError()
+
+    @abstractmethod
+    def fit(self, data):
+        """
+        Fit a model against some data.
+        """
+        raise NotImplementedError()
     
     def predict_abs_error(self, data, targets, references, times=None):
         """
