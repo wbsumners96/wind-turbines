@@ -102,14 +102,12 @@ class KernelRidgeRegressor(Predictor):
 
         return merged_data
 
-    def __init__(self, data=None):
+    def __init__(self):
         features_train_path = \
                 Path('~/.turbines/training_features.joblib') \
                         .expanduser()
         if features_train_path.is_file():
             self.features_train = load(features_train_path)
-        else:
-            self.fit(data)
 
     def fit(self, data):
         """
