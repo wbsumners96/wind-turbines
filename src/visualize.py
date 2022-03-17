@@ -254,43 +254,35 @@ def r2_matrix(r2_scores: Dict[str, Dict[str, float]]):
 
 def average_power_gain_curve_dataframes(data, predictor):
     def all_predictions(data, regressor):
-        N = data.n_turbines
-        targets = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 14, 15, 16, 17, 18, 19, 20,
-                21, 22, 23, 24]
-        references = targets
+        turbines = data.data['instanceID'].drop_duplicates()
+        turbine_numbers = [int(turbine[-2:]) for turbine in turbines]
 
         data.select_normal_operation_times()
         # data_copy.select_unsaturated_times()
         # data_copy.select_power_min()
         
-        predictions_fr = regressor.predict(data, targets, references, None)
+        predictions_fr = regressor.predict(data,
+                                           turbine_numbers,
+                                           turbine_numbers,
+                                           None)
         
         predictions = predictions_fr['predicted_power'].to_numpy()
         measurements = predictions_fr['target_power'].to_numpy()
         errors = predictions - measurements
 
-        print(predictions)
-        print(measurements)
-        print(errors)
-
         return predictions, measurements, errors
 
     _, measured, errors = all_predictions(data, predictor)
+    measured = measured.flatten()
+    errors = errors.flatten()
 
-    # Plots power errors as functions of measured powers, averaged over
-    # turbines, like Oli showed in meeting
-    M = np.array(measured, dtype=object).flatten()
-    E = np.array(errors, dtype=object).flatten()
+    h, xedges, yedges = np.histogram2d(measured, errors, bins=100, 
+            range=[[measured.min(), measured.max()],
+                [errors.min(), errors.max()]])
 
-    M = np.array(M, dtype=float)
-    E = np.array(E, dtype=float)
-
-    h, xedges, yedges = np.histogram2d(M, E, bins=100, 
-            range=[[M.min(), M.max()], [E.min(), E.max()]])
-
-    plt.imshow(h.T, origin='lower', 
-            extent=[xedges[0], xedges[-1], yedges[0], yedges[-1]], 
-            interpolation='gaussian', cmap='Greens')
+    # plt.imshow(h.T, origin='lower', 
+    #         extent=[xedges[0], xedges[-1], yedges[0], yedges[-1]], 
+    #         interpolation='gaussian', cmap='Greens')
 
     h_av = np.zeros(xedges.shape[0] - 1)
     h_var = np.zeros(xedges.shape[0] - 1)
@@ -300,16 +292,19 @@ def average_power_gain_curve_dataframes(data, predictor):
         h_var[i] = np.sqrt(np.average((yedges[1:] - h_av[i])**2, weights=h[i]))
 
     plt.plot(xedges[:-1], h_av, color='red', label='Weighted average')
-    plt.plot(xedges[:-1], h_av + h_var, color='red', alpha=0.2, 
-            label='Standard deviation')
-    plt.plot(xedges[:-1], h_av - h_var, color='red', alpha=0.2)
+    plt.fill_between(xedges[:-1], h_av - h_var, h_av + h_var, color='red',
+            alpha=0.2, label='Standard deviation')
+
+    plt.xlim(0, 2000)
+    plt.ylim(-500, 500)
+
     plt.xlabel(r'$P$')
-    plt.ylabel(r'$\delta P$')
-    plt.colorbar()
+    plt.ylabel(r'$\Delta P$')
+    
+    plt.grid()
     plt.legend()
+
     plt.show()
-
-
 
 
 def average_power_gain_curve(data, k_mat):
