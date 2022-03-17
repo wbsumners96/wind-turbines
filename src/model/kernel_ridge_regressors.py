@@ -130,7 +130,7 @@ class KernelRidgeRegressor(Predictor):
         if not scores_dir.is_dir():
             os.mkdir(scores_dir)
 
-        turbine_ids = data['instanceID']
+        turbine_ids = data.data['instanceID'].drop_duplicates()
         for target_id in tqdm(turbine_ids, desc='Target', leave=False):
             target = data.select_turbine(target_id)
             target = target[['ts',
@@ -146,8 +146,8 @@ class KernelRidgeRegressor(Predictor):
             target_scores = {}
             target_features_train = {}
             for reference_id in tqdm(turbine_ids,
-                                         desc='Reference',
-                                         leave=False):
+                                     desc='Reference',
+                                     leave=False):
                 if target_id == reference_id:
                     target_regressors[reference_id] = None
                     target_scores[reference_id] = None
