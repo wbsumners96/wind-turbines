@@ -1,3 +1,4 @@
+from math import dist
 from model.predictor import Predictor
 
 import numpy as np
@@ -110,10 +111,11 @@ class WeightedAverage(Predictor):
 
         Returns
         -------
-        predicted_power : numpy.ndarray (real numbers)
-            Predicted power output of the target turbines.
-        target_power : numpy.ndarray (real numbers)
-            True power output of target turbines at given time.
+        predictions : pd.DataFrame
+            Dataframe with columns 'ts' representing timestamp, 'target_id'
+            giving the ID of the target turbine, 'target_power' giving the true
+            power of the target turbine at that time, and 'predicted_power'
+            giving the predicted power of the target turbine at that time.
 
         Raises
         ------
@@ -145,28 +147,60 @@ class WeightedAverage(Predictor):
         target_data = data.query('instanceID == @target_ids')
         reference_data = data.query('instanceID == @reference_ids')
 
-        # Get vector of distances from target turbines to reference turbines
-        target_positions = target_data[['Easting', 'Northing']].to_numpy()
-        reference_positions = reference_data[['Easting', 'Northing']].to_numpy()
+        target_data = target_data[['ts',
+                               'instanceID',
+                               'Power',
+                               'Easting',
+                               'Northing']]
+        target_data.rename(columns={'instanceID': 'target_id',
+                                    'Power': 'target_power',
+                                    'Easting': 'target_easting',
+                                    'Northing': 'target_northing'},
+                           inplace=True)
 
-        distances = np.sqrt(np.sum((target_positions[:,np.newaxis,:]
-                                   - reference_positions) ** 2, axis=-1))
+        reference_data = reference_data[['ts', 
+                                 'instanceID', 
+                                 'Power',
+                                 'Easting',
+                                 'Northing']]
+        reference_data.rename(columns={'instanceID': 'reference_id',
+                                   'Power': 'reference_power',
+                                   'Easting': 'reference_easting',
+                                   'Northing': 'reference_northing'},
+                          inplace=True)
 
-        # Get vector of weights
-        weights = np.vectorize(self.weighting)(distances)
+        merged_data = pd.merge(target_data, reference_data, on='ts')
+        merged_data['weighting'] = 0
+
+        def distance(row):
+            target_position = np.array([row['target_easting'],
+                                        row['target_northing']])
+            reference_position = np.array([row['reference_easting'],
+                                           row['reference_northing']])
+
+            displacement = target_position - reference_position
+            row['weighting'] = self.weighting(np.linalg.norm(displacement))
+
+            return row
+
+        merged_data = merged_data.apply(distance, axis=1)
+        merged_data.drop(columns=['target_easting',
+                                  'target_northing',
+                                  'reference_easting',
+                                  'reference_northing'],
+                         inplace=True)
         
-        # Calculate predicted power as w_1 f(p_1) + ... + w_n f(p_n)
-        target_powers = target_data['Power'].to_numpy()
-        reference_powers = reference_data['Power'].to_numpy()
-        predicted_powers = np.einsum('ij, j->i', weights, reference_powers) \
-                / np.sum(weights, axis=1)
+        merged_data['weighted_power'] = merged_data['weighting'] * \
+                                        merged_data['reference_power']
+        merged_data.drop(columns=['reference_power', 'weighting'], inplace=True)
 
-        results = {'ts': times,
-                   'target_id': target_ids,
-                   'true_power': target_powers,
-                   'predicted_power': predicted_powers}
+        table = pd.pivot_table(merged_data, index=['ts', 'target_id'],
+                aggfunc=np.average)
 
-        return pd.DataFrame(results)
+        table = pd.DataFrame(table.to_records())
+        table.rename({'weighted_power': 'predicted_power'}, inplace=True)
+
+        return table
 
 
 class GaussianWeightedAverage(WeightedAverage):
