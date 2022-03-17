@@ -123,7 +123,7 @@ class WeightedAverage(Predictor):
             raise TypeError('Data must be pandas dataframe')
 
         data = data.data
-        first_id = data['instanceID'][0]
+        first_id = data['instanceID'].iloc[0]
         if first_id.startswith('ARD'):
             type = 'ARD'
         elif first_id.startswith('CAU'):
