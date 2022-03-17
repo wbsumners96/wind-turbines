@@ -235,17 +235,17 @@ def r2_matrix(r2_scores: Dict[str, Dict[str, float]]):
     fig = plt.figure()
     ax = fig.gca()
 
-    img = ax.matshow(r2)
+    img = ax.matshow(r2, vmin=0.0, vmax=1.0)
     
     ax.set_xlabel('Reference')
     ax.set_ylabel('Target')
 
-    axis = np.arange(len(r2_scores.keys()))
+    axis = range(len(r2_scores.keys()))[::6]
 
     ax.set_xticks(axis)
     ax.set_yticks(axis)
-    ax.set_xticklabels(sorted(r2_scores.keys()))
-    ax.set_yticklabels(sorted(r2_scores.keys()))
+    ax.set_xticklabels(sorted(r2_scores.keys())[::6])
+    ax.set_yticklabels(sorted(r2_scores.keys())[::6])
 
     fig.colorbar(img)
 
