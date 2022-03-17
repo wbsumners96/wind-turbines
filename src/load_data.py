@@ -469,7 +469,16 @@ class TurbineData:
                              indicator=True) \
                       .query('_merge == "left_only"') \
                       .drop(['_merge', 'other_id', 'Unnamed: 0'], axis=1)
-        
+
+    def sample(self, frac=0.1, inplace=False):
+        """
+        Selects a random subset of the data.
+        """
+        sample = self.data.sample(frac=frac)
+        if inplace:
+            self.data = sample
+
+        return sample
 
 
 def load_data(path: str, data_type: str, flag: bool = False):

@@ -1,4 +1,5 @@
 import copy
+from typing import Dict
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np 
@@ -215,13 +216,48 @@ def visualize_cor_func_behaviour(X, Y, ys):
     plt.legend()
     plt.ylabel('Count')
     plt.show()
+    
 
+def r2_matrix(r2_scores: Dict[str, Dict[str, float]]):
+    """
+    Display the dictionary of R^2 scores as an array.
+    """
+    def f(entry):
+        if entry is None:
+            return 1.0
+        else:
+            return entry
+
+    r2 = [r2_scores[key] for key in sorted(r2_scores.keys())]
+    r2 = [[f(entry[key]) for key in sorted(entry.keys())] for entry in r2]
+    r2 = np.array(r2)
+
+    fig = plt.figure()
+    ax = fig.gca()
+
+    img = ax.matshow(r2, vmin=0.0, vmax=1.0)
+    
+    ax.set_xlabel('Reference')
+    ax.set_ylabel('Target')
+
+    axis = range(len(r2_scores.keys()))[::6]
+
+    ax.set_xticks(axis)
+    ax.set_yticks(axis)
+    ax.set_xticklabels(sorted(r2_scores.keys())[::6])
+    ax.set_yticklabels(sorted(r2_scores.keys())[::6])
+
+    fig.colorbar(img)
+
+    plt.show()
+    
 
 def average_power_gain_curve_dataframes(data, predictor):
     def all_predictions(data, regressor):
         N = data.n_turbines
-        targets = list(range(1, 2))
-        references = list(range(2, 16))
+        targets = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 14, 15, 16, 17, 18, 19, 20,
+                21, 22, 23, 24]
+        references = targets
 
         data.select_normal_operation_times()
         # data_copy.select_unsaturated_times()
