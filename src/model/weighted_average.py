@@ -73,7 +73,6 @@ class WeightedAverage(Predictor):
             plt.imshow(ws)
             plt.title('Weight matrix')
             plt.show()
-        
 
         def f(power):
             # Dummy function to change later if we want something more complex 
