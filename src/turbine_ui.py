@@ -15,7 +15,6 @@ def main():
 	else:
 		data_path = sys.argv[1]
 
-
 	# Get user input for which farm to use
 	farm_options = ['ARD', 'CAU']
 	farm = select_farm(farm_options)
@@ -31,25 +30,30 @@ def main():
 	for model in app.models:
 		print(model.__name__)
 
-	# Get user input for target and reference turbines and times
+	# Get user input for whether to remove wake affected turbines
+	app.remove_wake_affected = select_wake_effects()
+
+	# Get user input for target and reference turbines
 	app.targets, app.references = select_turbines()
 	print(f'Targets selected: {app.targets}')
 	print(f'References selected: {app.references}')
 	app.times = app.data.data.loc[:,'ts'] # selecting all times
-	print('Running predictions over all times by default.')
+	print('Running predictions over all times by default.\n')
 
 	# Run predictions
 	app.predictor_parameters = select_predictor_parameters(app)
-	print('\nCreating predictors and running predictions...')
 	results = app.run() # results is a list of dataframes
 
-	# TODO: replace with a call to visualize
 	# Display results
-	for result in results:
-		model_name = app.models[results.index(result)].__name__
-		print(f'\nGenerating the figure for {model_name}...')
-		display_results(result, model_name)
-		print(f'Successfully created the {model_name} results figure.')
+	# TODO add figure generation
+	# display_results(results)
+	print('\nHere I\'ll display some results, but you haven\'t written that in yet.')
+
+	# for result in results:
+		# model_name = app.models[results.index(result)].__name__
+		# print(f'\nGenerating the figure for {model_name}...')
+		# display_results(result, model_name)
+		# print(f'Successfully created the {model_name} results figure.')
 
 
 def select_farm(farms):
@@ -134,6 +138,28 @@ def select_models():
 	return selected_models
 
 
+def select_wake_effects():
+	"""
+	Returns whether to remove the wake affected turbines.
+	"""
+	user_input = ''	
+	
+	# As long as the user enters invalid input, prompt again
+	while (user_input != 'Y' and user_input != 'y') and \
+		  (user_input != 'N' and user_input != 'n'):
+		print('\nRemove wake affected turbines? (Y/N): ', end='') # Prompt
+		user_input = input()
+		# Evaluate user input
+		if user_input == 'Y' or user_input == 'y':
+			print('Wake affected turbines will be removed.')
+			return True
+		elif user_unput == 'N' or user_input == 'n':
+			print('Wake affected turbines will not be removed.')
+			return False
+		else:
+			print('Invalid input. ', end='')		
+
+
 def select_turbines():
 	"""
 	Returns two int lists of turbine IDs, for targets and references.
@@ -191,7 +217,7 @@ def select_predictor_parameters(app):
 	for model in app.models:
 		user_parameters = {}
 		# print(model.__init__.__doc__)
-		print(f'\nSetting the parameters for the {model.__name__} model...')
+		print(f'Setting the parameters for the {model.__name__} model...')
 
 		for parameter in inspect.signature(model.__init__).parameters.keys():
 			# Automatically set the parameters required for all predictors
@@ -209,6 +235,7 @@ def select_predictor_parameters(app):
 
 
 def display_results(result, model_name):
+	# TODO rewrite with calls to visualize
 	plt.hist(result.loc[:, 'predicted_power'],
 			 # histtype='stepfilled',
 			 color='hotpink',
