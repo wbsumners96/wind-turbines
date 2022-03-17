@@ -379,10 +379,8 @@ class TurbineData:
                     /blade_diameter 
 
             if turbine_distance <= 2:
-                print('too close')
                 return True
             if turbine_distance > 20:
-                print('too far')
                 return False
 
             return angle_to_wind <= iec_function(turbine_distance)
@@ -399,10 +397,10 @@ class TurbineData:
         wake_affected_path = Path('~/.turbines/wake_affected').expanduser()
         if not wake_affected_path.is_dir():
             os.mkdir(wake_affected_path)
-        else:
-            self.merge_wake_affected_data()
+        # else:
+        #     self.merge_wake_affected_data()
 
-            return
+        #     return
 
         non_operational = self.data[self.data.value == 0]
         non_operational = non_operational[['ts', 'instanceID', 'Easting',
@@ -433,14 +431,13 @@ class TurbineData:
                             wind_heading,
                             blade_diameter):
                 row['affected'] = 1
-                print(row)
 
             return row
 
         dfs = np.array_split(df, 200)
         print(dfs)
         fr = 0
-        for frame in dfs:
+        for frame in tqdm(dfs, leave=False):
             fr = fr + 1
 
             frame = frame.apply(f, axis=1)
@@ -448,7 +445,7 @@ class TurbineData:
             frame = frame[frame['affected'] == 1]
             frame_prime = frame[['ts', 'other_id']]
             
-            frame_prime.to_csv(f'wake_affected/{fr}_wake_affected.csv')
+            frame_prime.to_csv(f'~/.turbines/wake_affected/{self.farm}_{fr}_wake_affected.csv')
             print(f'Saved frame {fr}')
 
         self.merge_wake_affected_data()
@@ -457,7 +454,7 @@ class TurbineData:
         dfs = []
         for fr in range(1, 201):
             dfs.append(pd.read_csv('~/.turbines/wake_affected/' + \
-                    f'{fr}_wake_affected.csv'))
+                    f'{self.farm}_{fr}_wake_affected.csv'))
 
         df = pd.concat(dfs)
         df.drop(columns=['Unnamed: 0'])
