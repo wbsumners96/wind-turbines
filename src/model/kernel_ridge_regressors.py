@@ -100,9 +100,61 @@ class KernelRidgeRegressor(Predictor):
         merged_data.drop(columns=['target_angle', 'reference_angle'],
                          inplace=True)
 
-        return merged_data
+        if self.aggregation == 'r2':
+            weightings = {}
+            for target_id in target_ids:
+                r2_path = Path('~/.turbines/scores/').expanduser() / \
+                        f'{target_id}_kernel_ridge_scores.joblib'
+                target_r2_scores = load(r2_path)
 
-    def __init__(self):
+                target_weightings = { key: np.exp(value) for key, value in
+                        target_r2_scores.items() }
+                
+                weightings[target_id] = target_weightings
+
+            merged_data['weighting'] = 0
+            for target_id in target_ids:
+                for reference_id in reference_ids:
+                    mask = (merged_data['target_id'] == target_id) & \
+                           (merged_data['reference_id'] == reference_id)
+                    merged_data.loc[mask, 'weighting'] = \
+                            weightings[target_id][reference_id]
+
+            merged_data['weighted_power'] = merged_data['predicted_power'] * \
+                    merged_data['weighting']
+
+            merged_data.drop(columns=['predicted_power', 'weighting'], inplace=True)
+
+            table = pd.pivot_table(merged_data, index=['ts', 'target_id'],
+                    aggfunc=np.average)
+
+            table = pd.DataFrame(table.to_records())
+            table.rename({'weighted_power': 'predicted_power'}, inplace=True)
+
+            return table
+        else:
+            return merged_data
+
+    def __init__(self, aggregation='none'):
+        """
+        A model which fits functions of the form
+            f(x) = sum a_j k(x, x_j)
+        for some kernel k.
+
+        Parameters
+        ----------
+        aggregation : 'none', 'r2', 'lm'
+            Determine how to aggregate the pairwise predictions into a single
+            prediction on a target. If 'none', no aggregation is done. If 'r2',
+            takes a weighted average with weights proportional to the
+            exponential of the R^2 score of the pairwise predictions. If 'lm',
+            an additional step of fitting a linear function of the form
+                target_power = sum a_j f_j(reference_power_j, target_angle,
+                        reference_angle_j)
+            is done.
+        """
+        self.aggregation = aggregation
+
         features_train_path = \
                 Path('~/.turbines/training_features.joblib') \
                         .expanduser()

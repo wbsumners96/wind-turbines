@@ -6,7 +6,8 @@ import pandas as pd
 
 
 class WeightedAverage(Predictor):
-    def __init__(self, weighting):
+    def __init__(self, weighting, reference_column=False):
+        self.reference_column = reference_column
         self.weighting = weighting
 
     def fit(self, data):
@@ -199,6 +200,9 @@ class WeightedAverage(Predictor):
 
         table = pd.DataFrame(table.to_records())
         table.rename({'weighted_power': 'predicted_power'}, inplace=True)
+
+        if self.reference_column:
+            table['reference_id'] = None
 
         return table
 
