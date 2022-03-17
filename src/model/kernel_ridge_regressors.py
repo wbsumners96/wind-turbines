@@ -114,8 +114,8 @@ class KernelRidgeRegressor(Predictor):
     def fit(self, data):
         """
         Fit a collection of kernel ridge models of the form target_power = 
-        f(reference_power, target_angle, reference_angle) for each pair of target
-        and reference turbines in the farm.
+        f(reference_power, target_angle, reference_angle) for each pair of
+        target and reference turbines in the farm.
         """
         self.features_train = {}
         turbines_dir = Path('~/.turbines').expanduser()
