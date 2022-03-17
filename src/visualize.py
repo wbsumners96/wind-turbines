@@ -217,16 +217,17 @@ def visualize_cor_func_behaviour(X, Y, ys):
     plt.show()
 
 
-def average_power_gain_curve_dataframes(data, regressor: KernelRidgeRegressor):
+def average_power_gain_curve_dataframes(data, predictor):
     def all_predictions(data, regressor):
         N = data.n_turbines
-        its = list(range(1, 2))
+        targets = list(range(1, 2))
+        references = list(range(2, 16))
 
         data.select_normal_operation_times()
         # data_copy.select_unsaturated_times()
         # data_copy.select_power_min()
         
-        predictions_fr = regressor.predict(data, its, list(range(2, 16)), None)
+        predictions_fr = regressor.predict(data, targets, references, None)
         
         predictions = predictions_fr['predicted_power'].to_numpy()
         measurements = predictions_fr['target_power'].to_numpy()
@@ -238,7 +239,7 @@ def average_power_gain_curve_dataframes(data, regressor: KernelRidgeRegressor):
 
         return predictions, measurements, errors
 
-    _, measured, errors = all_predictions(data, regressor)
+    _, measured, errors = all_predictions(data, predictor)
 
     # Plots power errors as functions of measured powers, averaged over
     # turbines, like Oli showed in meeting

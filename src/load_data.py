@@ -456,32 +456,6 @@ class TurbineData:
     def merge_wake_affected_data(self):
         dfs = []
         for fr in range(1, 201):
-            dfs.append(pd.read_csv(f'wake_affected/{fr}_wake_affected.csv'))
-
-        df = pd.concat(dfs)
-        df.drop(columns=['Unnamed: 0'])
-
-			return row
-
-        dfs = np.array_split(df, 200)
-
-        fr = 0
-        for frame in tqdm(dfs):
-            fr = fr + 1
-
-            frame = frame.apply(f, axis=1)
-
-            frame = frame[frame['affected'] == 1]
-            frame_prime = frame[['ts', 'other_id']]
-            
-            frame_path = wake_affected_path / f'{fr}_wake_affected.csv'
-            frame_prime.to_csv(frame_path)
-
-        self.merge_wake_affected_data()
-
-    def merge_wake_affected_data(self):
-        dfs = []
-        for fr in range(1, 201):
             dfs.append(pd.read_csv('~/.turbines/wake_affected/' + \
                     f'{fr}_wake_affected.csv'))
 
