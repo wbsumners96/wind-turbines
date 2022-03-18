@@ -1,9 +1,12 @@
 from abc import abstractmethod
+from datetime import datetime
+import math
 from joblib import dump, load
 import numpy as np
 import os
 import pandas as pd
 from pathlib import Path
+from pandas.core.reshape.merge import merge
 from sklearn.compose import TransformedTargetRegressor
 from sklearn.kernel_ridge import KernelRidge
 from sklearn.model_selection import train_test_split
@@ -97,7 +100,7 @@ class KernelRidgeRegressor(Predictor):
                        (merged_data['reference_id'] == reference_id)
                 merged_data.loc[mask, 'predicted_power'] = predictions
 
-        merged_data.drop(columns=['target_angle', 'reference_angle'],
+        merged_data.drop(columns=['reference_power', 'target_angle', 'reference_angle'],
                          inplace=True)
 
         if self.aggregation == 'r2':
@@ -106,10 +109,12 @@ class KernelRidgeRegressor(Predictor):
                 r2_path = Path('~/.turbines/scores/').expanduser() / \
                         f'{target_id}_kernel_ridge_scores.joblib'
                 target_r2_scores = load(r2_path)
+                target_r2_scores = { reference_id : target_r2_scores[reference_id] for
+                        reference_id in reference_ids }
 
                 target_weightings = { key: np.exp(value) for key, value in
                         target_r2_scores.items() }
-                
+
                 weightings[target_id] = target_weightings
 
             merged_data['weighting'] = 0
@@ -120,16 +125,22 @@ class KernelRidgeRegressor(Predictor):
                     merged_data.loc[mask, 'weighting'] = \
                             weightings[target_id][reference_id]
 
-            merged_data['weighted_power'] = merged_data['predicted_power'] * \
-                    merged_data['weighting']
+            table = merged_data.pivot(index=['ts', 'target_id'],
+                                      columns=['reference_id'],
+                                      values=['target_power', 'predicted_power', 'weighting'])
+            
+            predicted_powers = table['predicted_power'].to_numpy(na_value=0.0)
+            weightings = table['weighting'].to_numpy(na_value=0.0)
 
-            merged_data.drop(columns=['predicted_power', 'weighting'], inplace=True)
+            predicted_powers = np.average(predicted_powers, weights=weightings, axis=1)
 
-            table = pd.pivot_table(merged_data, index=['ts', 'target_id'],
-                    aggfunc=np.average)
+            table['predicted_power'] = predicted_powers
 
-            table = pd.DataFrame(table.to_records())
-            table.rename({'weighted_power': 'predicted_power'}, inplace=True)
+            table = table.stack(['reference_id'])
+            table.dropna(inplace=True)
+            table = table.reset_index()   
+
+            table.drop(columns=['reference_id', 'weighting'], inplace=True)
 
             return table
         else:
@@ -200,7 +211,7 @@ class KernelRidgeRegressor(Predictor):
                                      leave=False):
                 if target_id == reference_id:
                     target_regressors[reference_id] = None
-                    target_scores[reference_id] = None
+                    target_scores[reference_id] = 1.0
 
                     continue
 
@@ -289,6 +300,14 @@ class RadialBasisKRR(KernelRidgeRegressor):
 
 
 class PeriodicLaplacianKRR(KernelRidgeRegressor):
+    def __init__(self, aggregation):
+        if math.isclose(aggregation, 1.0):
+            aggregation = 'r2'
+        else:
+            aggregation = 'none'
+
+        super().__init__(aggregation)
+
     def kernel(self, x_i, x_j):
         def periodic_kernel(theta_i, theta_j, 
                             variance=1, 

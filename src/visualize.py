@@ -2,7 +2,9 @@ import copy
 import math
 from typing import Dict
 import matplotlib as mpl
+from matplotlib import cm
 import matplotlib.pyplot as plt
+from matplotlib import colors
 import numpy as np
 from sklearn.compose import TransformedTargetRegressor
 from sklearn.kernel_ridge import KernelRidge
@@ -11,6 +13,16 @@ from sklearn.metrics import mean_absolute_error, \
                             median_absolute_error
 from tqdm import tqdm
 from model.kernel_ridge_regressors import KernelRidgeRegressor
+
+
+def heatmap(predictions, filename=None):
+    target = predictions['target_power'].to_numpy()
+    predicted = predictions['predicted_power'].to_numpy()
+    errors = target - predicted
+
+    plt.hist2d(target, errors, cmap='YlOrBr', norm=colors.LogNorm())
+
+    plt.show()
 
 
 def summary_metrics(predictions, row_name, filename=None):
@@ -72,32 +84,36 @@ def r2_matrix(r2_scores, filename=None):
     
 
 def power_gain_curve(predictions, filename=None):
-    target = predictions['target_power'].to_numpy()
-    predicted = predictions['predicted_power'].to_numpy()
-    errors = target - predicted
+    cmap = cm.get_cmap('gist_rainbow')
+    target_ids = predictions['target_id'].drop_duplicates()
+    for j, target_id in enumerate(target_ids):
+        target_predictions = predictions.query('target_id == @target_id')
 
-    h, xedges, yedges = np.histogram2d(target, errors, bins=100, 
-            range=[[target.min(), target.max()],
-                [errors.min(), errors.max()]])
-    
-    # plt.imshow(h.T, origin='lower', 
-    #         extent=[xedges[0], xedges[-1], yedges[0], yedges[-1]], 
-    #         interpolation='gaussian', cmap='Greens')
+        target = target_predictions['target_power'].to_numpy()
+        predicted = target_predictions['predicted_power'].to_numpy()
+        errors = target - predicted
 
-    h_av = np.zeros(xedges.shape[0] - 1)
-    h_var = np.zeros(xedges.shape[0] - 1)
-    
-    for i in range(h_av.shape[0]):
-        if math.isclose(sum(h[i]), 0):
-            h_av[i] = h_av[i-1]
-            h_var[i] = h_var[i-1]
-        else:
-            h_av[i] = np.average(yedges[1:], weights=h[i])
-            h_var[i] = np.sqrt(np.average((yedges[1:] - h_av[i])**2, weights=h[i]))
+        h, xedges, yedges = np.histogram2d(target, errors, bins=100, 
+                range=[[target.min(), target.max()],
+                    [errors.min(), errors.max()]])
 
-    plt.plot(xedges[:-1], h_av, color='red', label='Weighted average')
-    plt.fill_between(xedges[:-1], h_av - h_var, h_av + h_var, color='red',
-            alpha=0.2, label='Standard deviation')
+        h_av = np.zeros(xedges.shape[0] - 1)
+        h_var = np.zeros(xedges.shape[0] - 1)
+        
+        for i in range(h_av.shape[0]):
+            if math.isclose(sum(h[i]), 0):
+                h_av[i] = h_av[i-1]
+                h_var[i] = h_var[i-1]
+            else:
+                h_av[i] = np.average(yedges[1:], weights=h[i])
+                h_var[i] = np.sqrt(np.average((yedges[1:] - h_av[i])**2,
+                        weights=h[i]))
+        
+        color = cmap(j/len(target_ids))
+
+        plt.plot(xedges[:-1], h_av, color=color, label=f'{target_id}')
+        plt.fill_between(xedges[:-1], h_av - h_var, h_av + h_var, color=color,
+                alpha=0.2)
 
     plt.xlim(0, 2000)
     plt.ylim(-500, 500)
