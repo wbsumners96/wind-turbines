@@ -397,10 +397,10 @@ class TurbineData:
         wake_affected_path = Path('~/.turbines/wake_affected').expanduser()
         if not wake_affected_path.is_dir():
             os.mkdir(wake_affected_path)
-        # else:
-        #     self.merge_wake_affected_data()
+        else:
+            self.merge_wake_affected_data()
 
-        #     return
+            return
 
         non_operational = self.data[self.data.value == 0]
         non_operational = non_operational[['ts', 'instanceID', 'Easting',

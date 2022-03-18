@@ -1,12 +1,117 @@
 import copy
+import math
 from typing import Dict
 import matplotlib as mpl
 import matplotlib.pyplot as plt
-import numpy as np 
-from sklearn.kernel_ridge import KernelRidge
+import numpy as np
 from sklearn.compose import TransformedTargetRegressor
+from sklearn.kernel_ridge import KernelRidge
+from sklearn.metrics import mean_absolute_error, \
+                            mean_absolute_percentage_error, \
+                            median_absolute_error
 from tqdm import tqdm
 from model.kernel_ridge_regressors import KernelRidgeRegressor
+
+
+def summary_metrics(predictions, row_name, filename=None):
+    """
+    Construct a LaTeX row with columns mean absolute error, mean absolute
+    percentage error, and median error.
+    """
+    target = predictions['target_power'].to_numpy()
+    predicted = predictions['predicted_power'].to_numpy()
+
+    mae = mean_absolute_error(target, predicted)
+    mape = mean_absolute_percentage_error(target, predicted)
+    medae = median_absolute_error(target, predicted)
+
+    row = f'{row_name} & {mae} & {mape} & {medae}'
+
+    if filename is not None:
+        with open(filename, 'w') as fs:
+            fs.write(row)
+
+    return row
+
+
+def r2_matrix(r2_scores, filename=None):
+    """
+    Display the dictionary of R^2 scores as an array.
+    """
+    def f(entry):
+        if entry is None:
+            return 1.0
+        else:
+            return entry
+
+    r2 = [r2_scores[key] for key in sorted(r2_scores.keys())]
+    r2 = [[f(entry[key]) for key in sorted(entry.keys())] for entry in r2]
+    r2 = np.array(r2)
+
+    fig = plt.figure()
+    ax = fig.gca()
+
+    img = ax.matshow(r2, vmin=0.0, vmax=1.0)
+    
+    ax.set_xlabel('Reference')
+    ax.set_ylabel('Target')
+
+    axis = range(len(r2_scores.keys()))[::6]
+
+    ax.set_xticks(axis)
+    ax.set_yticks(axis)
+    ax.set_xticklabels(sorted(r2_scores.keys())[::6])
+    ax.set_yticklabels(sorted(r2_scores.keys())[::6])
+
+    fig.colorbar(img)
+
+    if filename is not None:
+        plt.savefig(filename)
+    else:
+        plt.show()
+    
+
+def power_gain_curve(predictions, filename=None):
+    target = predictions['target_power'].to_numpy()
+    predicted = predictions['predicted_power'].to_numpy()
+    errors = target - predicted
+
+    h, xedges, yedges = np.histogram2d(target, errors, bins=100, 
+            range=[[target.min(), target.max()],
+                [errors.min(), errors.max()]])
+    
+    # plt.imshow(h.T, origin='lower', 
+    #         extent=[xedges[0], xedges[-1], yedges[0], yedges[-1]], 
+    #         interpolation='gaussian', cmap='Greens')
+
+    h_av = np.zeros(xedges.shape[0] - 1)
+    h_var = np.zeros(xedges.shape[0] - 1)
+    
+    for i in range(h_av.shape[0]):
+        if math.isclose(sum(h[i]), 0):
+            h_av[i] = h_av[i-1]
+            h_var[i] = h_var[i-1]
+        else:
+            h_av[i] = np.average(yedges[1:], weights=h[i])
+            h_var[i] = np.sqrt(np.average((yedges[1:] - h_av[i])**2, weights=h[i]))
+
+    plt.plot(xedges[:-1], h_av, color='red', label='Weighted average')
+    plt.fill_between(xedges[:-1], h_av - h_var, h_av + h_var, color='red',
+            alpha=0.2, label='Standard deviation')
+
+    plt.xlim(0, 2000)
+    plt.ylim(-500, 500)
+
+    plt.xlabel(r'$P$')
+    plt.ylabel(r'$\Delta P$')
+    
+    plt.grid()
+    plt.legend()
+
+    if filename is not None:
+        plt.savefig(filename)
+    else:
+        plt.show()
 
 
 def wind_direction_location(data_positions, time, targets, references,
@@ -215,40 +320,6 @@ def visualize_cor_func_behaviour(X, Y, ys):
     plt.xlabel('Target turbine power (kW)')
     plt.legend()
     plt.ylabel('Count')
-    plt.show()
-    
-
-def r2_matrix(r2_scores: Dict[str, Dict[str, float]]):
-    """
-    Display the dictionary of R^2 scores as an array.
-    """
-    def f(entry):
-        if entry is None:
-            return 1.0
-        else:
-            return entry
-
-    r2 = [r2_scores[key] for key in sorted(r2_scores.keys())]
-    r2 = [[f(entry[key]) for key in sorted(entry.keys())] for entry in r2]
-    r2 = np.array(r2)
-
-    fig = plt.figure()
-    ax = fig.gca()
-
-    img = ax.matshow(r2, vmin=0.0, vmax=1.0)
-    
-    ax.set_xlabel('Reference')
-    ax.set_ylabel('Target')
-
-    axis = range(len(r2_scores.keys()))[::6]
-
-    ax.set_xticks(axis)
-    ax.set_yticks(axis)
-    ax.set_xticklabels(sorted(r2_scores.keys())[::6])
-    ax.set_yticklabels(sorted(r2_scores.keys())[::6])
-
-    fig.colorbar(img)
-
     plt.show()
     
 
