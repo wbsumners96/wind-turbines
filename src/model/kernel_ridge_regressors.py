@@ -275,6 +275,19 @@ class KernelRidgeRegressor(Predictor):
                 .expanduser()
         dump(self.features_train, training_features_path)
 
+    def scores(self, data):
+        scores = {}
+        target_ids = data.data['instanceID'].drop_duplicates()
+        for target_id in target_ids:
+            target_scores_path = Path('~/.turbines/scores/' + \
+                    f'{target_id}_kernel_ridge_scores.joblib') \
+                    .expanduser()
+            target_scores = load(target_scores_path)
+
+            scores[target_id] = target_scores
+
+        return scores
+
 
 class LaplacianKRR(KernelRidgeRegressor):
     def kernel(self, x_i, x_j):
