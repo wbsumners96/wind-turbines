@@ -22,28 +22,34 @@ turbines = { 'ARD': [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
              'CAU': [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 14, 15, 16, 17, 18, 19, 20,
                      21, 22, 23, 24] }
 
-if not path.is_dir():
-    os.mkdir(path)
+predictions = load(path/'ARD_lll_predictions_none.joblib')
+predictions.query('target_id == "ARD_WTG13" and reference_id == "ARD_WTG15"',
+                  inplace=True)
+print(visualize.summary_metrics(predictions, row_name='pfjsidfj'))
 
-for farm in tqdm(['ARD', 'CAU'], leave=False):
-    data = load_data.TurbineData('../../Data/', farm)
-    data.clear_wake_affected_turbines()
-    data.select_baseline(inplace=True)
-    data.select_normal_operation_times()
-    data.sample(0.5, inplace=True)
 
-    for key, predictor in tqdm(kernels.items(), leave=False):
-        predictor.fit(data)
-        dump(predictor, path/f'{farm}_{key}_predictor.joblib')
-        dump(predictor.scores(data), path/f'{farm}_{key}_scores.joblib')
-
-        predictor.aggregation = 'none'
-        predictions = predictor.predict(data, turbines[farm], turbines[farm])
-        dump(predictions, path/f'{farm}_{key}_predictions_none.joblib')
-
-        predictor.aggregation = 'r2'
-        predictions = predictor.predict(data, turbines[farm], turbines[farm])
-        dump(predictions, path/f'{farm}_{key}_predictions_r2.joblib')
+# if not path.is_dir():
+#     os.mkdir(path)
+# 
+# for farm in tqdm(['ARD', 'CAU'], leave=False):
+#     data = load_data.TurbineData('../../Data/', farm)
+#     data.clear_wake_affected_turbines()
+#     data.select_baseline(inplace=True)
+#     data.select_normal_operation_times()
+#     data.sample(0.5, inplace=True)
+# 
+#     for key, predictor in tqdm(kernels.items(), leave=False):
+#         predictor.fit(data)
+#         dump(predictor, path/f'{farm}_{key}_predictor.joblib')
+#         dump(predictor.scores(data), path/f'{farm}_{key}_scores.joblib')
+# 
+#         predictor.aggregation = 'none'
+#         predictions = predictor.predict(data, turbines[farm], turbines[farm])
+#         dump(predictions, path/f'{farm}_{key}_predictions_none.joblib')
+# 
+#         predictor.aggregation = 'r2'
+#         predictions = predictor.predict(data, turbines[farm], turbines[farm])
+#         dump(predictions, path/f'{farm}_{key}_predictions_r2.joblib')
 
 
 
