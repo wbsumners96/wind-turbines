@@ -1,7 +1,7 @@
 import copy
 import math
 from typing import Dict
-import matplotlib as mpl
+import matplotlib
 from matplotlib import cm
 import matplotlib.pyplot as plt
 from matplotlib import colors
@@ -13,6 +13,16 @@ from sklearn.metrics import mean_absolute_error, \
                             median_absolute_error
 from tqdm import tqdm
 from model.kernel_ridge_regressors import KernelRidgeRegressor
+
+
+matplotlib.use("pgf")
+matplotlib.rcParams.update({
+    "pgf.texsystem": "pdflatex",
+    'font.family': 'serif',
+    'text.usetex': True,
+    'pgf.rcfonts': False,
+    'axes.unicode_minus': False
+})
 
 
 def heatmap(predictions, filename=None):
@@ -44,6 +54,77 @@ def summary_metrics(predictions, row_name, filename=None):
             fs.write(row)
 
     return row
+
+
+def r2_matrices(r2_scores, filename=None):
+    def f(entry):
+        if entry is None:
+            return 1.0
+        else:
+            return entry
+
+    base_text_width = 6.13888888889
+    fig, axes = plt.subplots(2, 4, figsize=(0.9*base_text_width,
+        base_text_width/1.8))
+
+    farms = ['ARD', 'CAU']
+    kernels = { 'lpp': 'Periodic Laplacian',
+                'l': 'Power Laplacian',
+                'lll': 'Laplacian',
+                'rb': 'Radial Basis' }
+    for i, farm in enumerate(farms):
+        for j, kernel in enumerate(kernels.keys()):
+            fk_r2_scores = r2_scores[farm][kernel]
+            r2 = [fk_r2_scores[key] for key in sorted(fk_r2_scores.keys())]
+            r2 = [[f(entry[key]) for key in sorted(entry.keys())] for entry in r2]
+            r2 = np.array(r2)
+
+            ax = axes[i, j]
+
+            img = ax.matshow(r2, vmin=0.0, vmax=1.0)
+
+            # ax.set_xlabel('Reference')
+            # ax.set_ylabel('Target')
+
+            # axis = range(len(fk_r2_scores.keys()))[::6]
+
+            # ax.set_xticks(axis)
+            # ax.set_yticks(axis)
+            # ax.set_xticklabels(sorted(fk_r2_scores.keys())[::6])
+            # ax.set_yticklabels(sorted(fk_r2_scores.keys())[::6])
+
+            ax.tick_params(top=False, 
+                           bottom=False,
+                           left=False,
+                           labeltop=False,
+                           labelleft=False)
+
+    fig.tight_layout()
+
+    for i, farm in enumerate(farms):
+        axes[i, -1].set_ylabel(farm)
+        axes[i, -1].yaxis.set_label_coords(1.15, 0.5)
+        axes[i, -1].legend()
+
+    for j, key in enumerate(kernels.keys()):
+        axes[-1, j].set_xlabel(kernels[key])
+
+    axes[0, 0].set_xlabel('Reference')
+    axes[0, 0].set_ylabel('Target')
+    axes[0, 0].xaxis.set_label_coords(0.5, 1.15)
+
+    fig.subplots_adjust(top=0.76,
+                        bottom=0.08,
+                        left=0.05,
+                        right=0.85,
+                        hspace=0.0,
+                        wspace=0.16)
+
+    cbar_ax = fig.add_axes([0.9, 0.1, 0.03, 0.65])
+    fig.colorbar(img, cax=cbar_ax)
+    fig.patch.set_visible(False)
+
+    fig.savefig('r2_matrix.pgf')
 
 
 def r2_matrix(r2_scores, filename=None):
@@ -128,6 +209,107 @@ def power_gain_curve(predictions, filename=None):
         plt.savefig(filename)
     else:
         plt.show()
+
+
+def power_gain_curves(predictionss, filename=None):
+    base_text_width = 6.13888888889
+    fig, axes = plt.subplots(2, 4, figsize=(1.0*base_text_width,
+        base_text_width/1.5))
+
+    farms = ['ARD', 'CAU']
+    kernels = { 'lpp': 'Periodic Laplacian',
+                'l': 'Power Laplacian',
+                'lll': 'Laplacian',
+                'rb': 'Radial Basis' }
+    all_turbines = { 'ARD': [f'ARD_WTG{x:02}' for x in range(1, 16)],
+                     'CAU': [f'CAU_WTG{x:02}' for x in list(range(1, 11)) +
+                         list(range(14, 24))] }
+    turbines = { 'ARD': np.random.choice(all_turbines['ARD'], size=3),
+                 'CAU': np.random.choice(all_turbines['CAU'], size=3) }
+    for i, farm in enumerate(farms):
+        for j, kernel in enumerate(kernels.keys()):
+            predictions = predictionss[farm][kernel]
+            targets = turbines[farm].tolist()
+            predictions.query('target_id == @targets', inplace=True)
+
+            ax = axes[i, j]
+
+            ax.tick_params(top=False, 
+                           bottom=False,
+                           left=False,
+                           labeltop=False,
+                           labelleft=False,
+                           labelbottom=False)
+
+            cmap = cm.get_cmap('gist_rainbow')
+            target_ids = predictions['target_id'].drop_duplicates()
+            for j1, target_id in enumerate(target_ids):
+                target_predictions = predictions.query('target_id == @target_id')
+
+                target = target_predictions['target_power'].to_numpy()
+                predicted = target_predictions['predicted_power'].to_numpy()
+                errors = target - predicted
+
+                h, xedges, yedges = np.histogram2d(target, errors, bins=100, 
+                        range=[[target.min(), target.max()],
+                            [errors.min(), errors.max()]])
+
+                h_av = np.zeros(xedges.shape[0] - 1)
+                h_var = np.zeros(xedges.shape[0] - 1)
+                
+                for i1 in range(h_av.shape[0]):
+                    if math.isclose(sum(h[i1]), 0):
+                        h_av[i1] = h_av[i1-1]
+                        h_var[i1] = h_var[i1-1]
+                    else:
+                        h_av[i1] = np.average(yedges[1:], weights=h[i1])
+                        h_var[i1] = np.sqrt(np.average((yedges[1:] - h_av[i1])**2,
+                                weights=h[i1]))
+                
+                color = cmap(j1/len(target_ids))
+
+                ax.plot(xedges[:-1], h_av, color=color, label=f'{target_id}')
+                ax.fill_between(xedges[:-1],
+                        h_av - h_var,
+                        h_av + h_var,
+                        color=color,
+                        alpha=0.2)
+
+            ax.set_xlim(0, 2000)
+            ax.set_ylim(-500, 500)
+            
+            ax.set_xmargin(0)
+            ax.set_ymargin(0)
+            
+            ax.grid()
+
+    axes[0, 0].tick_params(top=True, 
+                           left=True,
+                           labeltop=True,
+                           labelleft=True)
+
+    axes[0, 0].set_xlabel(r'$P$')
+    axes[0, 0].set_ylabel(r'$\Delta P$')
+    axes[0, 0].xaxis.set_label_coords(0.5, 1.2)
+
+    fig.tight_layout()
+
+    for i, farm in enumerate(farms):
+        axes[i, -1].set_ylabel(farm)
+        axes[i, -1].yaxis.set_label_coords(1.1, 0.5)
+        axes[i, -1].legend()
+
+    for j, key in enumerate(kernels.keys()):
+        axes[-1, j].set_xlabel(kernels[key])
+
+    plt.subplots_adjust(top=0.8,
+                        bottom=0.05,
+                        left=0.1,
+                        right=0.95,
+                        hspace=0.034,
+                        wspace=0.033)
+
+    fig.savefig('power_gain_curves.pgf')
 
 
 def wind_direction_location(data_positions, time, targets, references,
