@@ -113,7 +113,7 @@ class TurbineApp:
                                            self.times)
 
             dump(prediction,
-                 filepath/f'{predictor.__class__.__name__}_{filename}.joblib')
+                 filepath/f'{predictor.__class__.__name__}_{self.farm}.joblib')
 
             predictions.append(prediction)
 
