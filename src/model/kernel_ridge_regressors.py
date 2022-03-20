@@ -290,12 +290,28 @@ class KernelRidgeRegressor(Predictor):
 
 
 class LaplacianKRR(KernelRidgeRegressor):
+    def __init__(self, aggregation):
+        if math.isclose(aggregation, 1.0):
+            aggregation = 'r2'
+        else:
+            aggregation = 'none'
+
+        super().__init__(aggregation)
+
     def kernel(self, x_i, x_j):
         return np.exp(-0.01*np.linalg.norm(x_i[np.newaxis, :, :] - x_j[:,
                 np.newaxis, :], ord=1, axis=2))
 
 
 class PowerLaplacianKRR(KernelRidgeRegressor):
+    def __init__(self, aggregation):
+        if math.isclose(aggregation, 1.0):
+            aggregation = 'r2'
+        else:
+            aggregation = 'none'
+
+        super().__init__(aggregation)
+
     def kernel(self, x_i, x_j):
         power_ref_i, _, _ = x_i.T
         power_ref_j, _, _ = x_j.T
@@ -307,6 +323,14 @@ class PowerLaplacianKRR(KernelRidgeRegressor):
 
 
 class RadialBasisKRR(KernelRidgeRegressor):
+    def __init__(self, aggregation):
+        if math.isclose(aggregation, 1.0):
+            aggregation = 'r2'
+        else:
+            aggregation = 'none'
+
+        super().__init__(aggregation)
+
     def kernel(self, x_i, x_j):
         return np.exp(-0.01*np.linalg.norm(x_i[np.newaxis, :, :] - x_j[:,
             np.newaxis, :], axis=2))
