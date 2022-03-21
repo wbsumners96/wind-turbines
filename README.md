@@ -17,10 +17,10 @@ justify or validate modifications made to a turbine.
 - Industry Supervisor: Oliver Warlow
 
 ### Academic Supervisors
-- Cathal Cummins, Heriot-Watt University
-- Abdul-Lateef Haji-Ali, Heriot-Watt University
-- Moritz Linkmann, University of Edinburgh
-- Aretha Teckentrup, University of Edinburgh
+- Cathal Cummins, _Heriot-Watt University_
+- Abdul-Lateef Haji-Ali, _Heriot-Watt University_
+- Moritz Linkmann, _University of Edinburgh_
+- Aretha Teckentrup, _University of Edinburgh_
 
 ### Methods Used
 - Predictive Modelling
@@ -131,118 +131,118 @@ The source code written for this project is contained in the `src` directory. We
 structured our code in a Model-View-Controller (MVC) format, where the View and
 Controller portions are combined.
 
-`load_data.py`
+`load_data.py`  
 This program contains the TurbineData class, is responsible for loading the
 data files, and houses various data cleaning functions.
-- `__init__(path, farm)`
+- `__init__(path, farm)`  
    Initializes the TurbineData object using data from the specified data path
    for the specified farm.
-- `to_tensor()`
+- `to_tensor()`  
    Converts pd.dataframe to 2 rank 3 tensors.
-- `to_dataframe()`
+- `to_dataframe()`  
    Converts tensor form to dataframe.
-- `select_baseline(inplace=False)`
+- `select_baseline(inplace=False)`  
    Selects only data before the configuration changes.
-- `select_new_phase()`
-   
-- `select_time(time, verbose=False)`
+- `select_new_phase()`  
+   Selects only data after the configuration changes.
+- `select_time(time, verbose=False)`  
    Return the data for all wind turbines at the specified time.
-- `select_turbine(turbine, inplace=False, verbose=False)`
+- `select_turbine(turbine, inplace=False, verbose=False)`  
    Return the data for one wind turbine (or a set of turbines) across all times.
-- `select_wind_direction(direction, width, verbose=False)`
+- `select_wind_direction(direction, width, verbose=False)`  
    Selects only times when the average wind direction is within the specified
    width of the specified direction
-- `select_normal_operation_times(verbose=False)`
+- `select_normal_operation_times(verbose=False)`  
    Removes times where any turbine is not functioning normally.
-- `select_unsaturated_times(cutoff=1900, verbose=False)`
+- `select_unsaturated_times(cutoff=1900, verbose=False)`  
    Removes times where any turbine is obviously saturated in the power curve.
-- `select_power_min(cutoff=10, verbose=False)`
+- `select_power_min(cutoff=10, verbose=False)`  
    Removes times where any turbine has very low power.
-- `nan_to_zero()`
+- `nan_to_zero()`  
    Sets NaNs in the data to 0.
-- `clear_wake_affected_turbines()`
+- `clear_wake_affected_turbines()`  
    Remove all data points of turbines lying in the wake of non-operational
    turbines.
-- `merge_wake_affected_data()`
+- `merge_wake_affected_data()`  
    Combines multiple data files containing information on wake effects.
-- `sample(frac=0.1, inplace=False)`
-   Selects a random subset of the data.
+- `sample(frac=0.1, inplace=False)`  
+   Selects a random subset of the data.  
 The following functions are defined in `load_data.py`, but are not part of the
 `TurbineData` class.
-- `load_data(path: str, data_type: str, flag: bool = False)`
+- `load_data(path: str, data_type: str, flag: bool = False)`  
    Loads wind turbine data.
-- `load_positions(path, data_type, flag=False)`
+- `load_positions(path, data_type, flag=False)`  
    Loads wind turbine relative position data.
-- `load_data_positions(path, data_type, flag=False)`
+- `load_data_positions(path, data_type, flag=False)`  
    Loads wind turbine data and relative position data combined.
 
-`model/predictor.py`
+`model/predictor.py`  
 The `Predictor` class is an instance of a model, and is an object which is capable of
 predicting the power output given target turbines, reference turbines, and any
 other necessary parameters the model requires.
-- `predict(data, targets, references, times)`
+- `predict(data, targets, references, times)`  
    Predict the output power of a given set of target turbines given a separate
    set of reference turbines at a collection of times.
-- `fit(data)`
+- `fit(data)`  
    Fit a model against the given data.
-- `predict_abs_error(data, targets, references, times=None)`
+- `predict_abs_error(data, targets, references, times=None)`  
    Run the predict() function, and return its results alongside information
    about the error between prediction and target.
 
-`model/weighted_average.py`
+`model/weighted_average.py`  
 This program contains definitions for both `WeightedAverage` and its subclass
 `GaussianWeightedAverage`. The `WeightedAverage` class inherits the
 `Predictor` class. The non-inherited functions in the `WeightedAverage` class
 are listed below.
-- `predict_tensor(data, tar_mask, ref_mask, verbose=False)`
+- `predict_tensor(data, tar_mask, ref_mask, verbose=False)`  
    Predict the power of the specified wind turbines.
-- `predict_pd(data, targets, references, times)`
+- `predict_pd(data, targets, references, times)`  
    Predict the power of the target turbine at the specified time.
 
-`model/kernel_ridge_regressors.py`
+`model/kernel_ridge_regressors.py`  
 This program contains definitions for the `KernelRidgeRegressor` class, and its
 subclasses `LaplacianKRR`, `PowerLaplacianKRR`, `RadialBasisKRR`, and
 `PeriodicLaplacianKRR`. The `KernelRidgeRegressor` class inherits the `Predictor`
 class. The non-inherited functions in the `KernelRidgeRegressor` class are
 listed below.
-- `kernel(x_i, x_j)`
+- `kernel(x_i, x_j)`  
    Compute kernel matrix given two lists of features.
-- `scores(data)`
+- `scores(data)`  
    Returns kernel ridge scores for the specified data.
 
-`model/__init__.py`
+`model/__init__.py`  
 This program initializes the models so that they may be easily indexed by the
 app and UI.
 
-`turbine_app.py`
+`turbine_app.py`  
 The `TurbineApp` class loads the data and runs predictions for specified models.
-- `__init__(data_path, farm)`
+- `__init__(data_path, farm)`  
    Initializes a TurbineApp object with the specified data path and farm.
-- `load_data`
+- `load_data`  
    Loads the data and returns a TurbineData object.
-- `clean_data`
+- `clean_data`  
    Performs pre-processing operations on the data.
-- `create_predictors()`
+- `create_predictors()`  
    Creates a predictor object for each model.
-- `run_predictions(filepath, filename)`
+- `run_predictions(filepath, filename)`  
    Returns a list of predictions (one for each model).
-- `run()`
+- `run()`  
    Cleans the data, creates predictor objects, and runs predictions.
 
-`turbine_ui.py`
+`turbine_ui.py`  
 This program incorporates all the previously described files, and handles all
 user input. This file is the only file the user needs to run in order to produce
 predictions.
-- `select_farm(farms)`
+- `select_farm(farms)`  
    Returns the user's choice for which farm to work on.
-- `select_models()`
+- `select_models()`  
    Returns a list of the user's choices of models to run.
-- `select_wake_effects()`
+- `select_wake_effects()`  
    Returns the user's choice for whether to remove the wake affected turbines.
-- `select_sample_fraction()`
+- `select_sample_fraction()`  
    Returns a float representing the user's choice for the fraction of data to
    consider.
-- `select_turbines()`
+- `select_turbines()`  
    Returns two int lists of turbine IDs, for targets and references.
-- `select_predictor_parameters(app)`
+- `select_predictor_parameters(app)`  
    Returns the parameters the user specifies for each selected model.
