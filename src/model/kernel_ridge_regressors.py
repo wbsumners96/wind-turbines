@@ -1,10 +1,11 @@
+import math
+import os
+import numpy as np
+import pandas as pd
+
 from abc import abstractmethod
 from datetime import datetime
-import math
 from joblib import dump, load
-import numpy as np
-import os
-import pandas as pd
 from pathlib import Path
 from pandas.core.reshape.merge import merge
 from sklearn.compose import TransformedTargetRegressor
@@ -276,6 +277,9 @@ class KernelRidgeRegressor(Predictor):
         dump(self.features_train, training_features_path)
 
     def scores(self, data):
+    """
+    Returns kernel ridge scores for the specified data.
+    """
         scores = {}
         target_ids = data.data['instanceID'].drop_duplicates()
         for target_id in target_ids:

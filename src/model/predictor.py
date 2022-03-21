@@ -52,14 +52,14 @@ class Predictor:
     @abstractmethod
     def fit(self, data):
         """
-        Fit a model against some data.
+        Fit a model against the given data.
         """
         raise NotImplementedError()
     
     def predict_abs_error(self, data, targets, references, times=None):
         """
-        Run the predict() function, and output it's results alongside
-        information about the error between prediction and target
+        Run the predict() function, and return its results alongside
+        information about the error between prediction and target.
 
         Parameters
         ----------
@@ -87,10 +87,7 @@ class Predictor:
             abs_err, but averaged over times
         abs_err_total_average : float
             abs_err averaged over all times and turbines
-
         """
-
-
         tar_powers,pred_powers = self.predict(data,targets,references,times)
         abs_err = np.abs(tar_powers-pred_powers)
         abs_err_turbine_average = np.mean(abs_err,axis=-1)

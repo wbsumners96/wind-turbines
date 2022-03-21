@@ -2,6 +2,7 @@ import sys
 import re
 import datetime
 import inspect
+import warnings
 import matplotlib.pyplot as plt
 
 from turbine_app import TurbineApp
@@ -11,8 +12,10 @@ from model import models
 def main():
     if len(sys.argv) != 2:
         print('Usage: python turbine_ui.py data_path')
+        sys.exit(0)
     else:
         data_path = sys.argv[1]
+        warnings.filterwarnings('ignore')
 
     # Get user input for which farm to use
     farm_options = ['ARD', 'CAU']
@@ -43,17 +46,7 @@ def main():
     # Run predictions
     app.predictor_parameters = select_predictor_parameters(app)
     results = app.run() # results is a list of dataframes
-
-    # Display results
-    # TODO add figure generation
-    # display_results(results)
-    print('\nHere I\'ll display some results, but you haven\'t written that in yet.')
-
-    # for result in results:
-        # model_name = app.models[results.index(result)].__name__
-        # print(f'\nGenerating the figure for {model_name}...')
-        # display_results(result, model_name)
-        # print(f'Successfully created the {model_name} results figure.')
+    print('Predictions saved to ~/.turbines/predictions.')
 
 
 def select_farm(farms):
@@ -161,6 +154,9 @@ def select_wake_effects():
 
 
 def select_sample_fraction():
+    """
+    Returns a float representing the fraction of data to consider.
+    """
     print('\nEnter fraction of data to consider: ', end='')
     user_input = input()
     selected = False
@@ -246,24 +242,6 @@ def select_predictor_parameters(app):
 
         predictor_parameters.append(user_parameters)
     return predictor_parameters
-
-
-def display_results(result, model_name):
-    # TODO rewrite with calls to visualize
-    plt.hist(result.loc[:, 'predicted_power'],
-             # histtype='stepfilled',
-             color='hotpink',
-             label='Predicted power',
-             alpha=0.6)
-    plt.hist(result.loc[:, 'true_power'],
-             # histtype='stepfilled',
-             color='cornflowerblue',
-             label='Measured power',
-             alpha=0.6)
-    plt.title(model_name + ' Predicted and Measured Power')
-    plt.ylabel('Power (kW)')
-    plt.legend()
-    plt.show()
 
 
 main()

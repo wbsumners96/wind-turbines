@@ -18,8 +18,8 @@ class TurbineData:
         ----------
         path : str
             The path to the directory in which the data is located.
-        type : str
-            Which data to load, either 'ARD' or 'CAU'.
+        farm : str
+            Which farm data to load, either 'ARD' or 'CAU'.
 
         Throws
         ------
@@ -129,7 +129,7 @@ class TurbineData:
 
     def select_baseline(self, inplace=False):
         """
-        Selects data before the configuration changes
+        Selects only data before the configuration changes.
         For ARD:  < 01/06/2020
         For CAU:  < 30/06/2020
         """
@@ -168,9 +168,9 @@ class TurbineData:
 
     def select_new_phase(self):
         """
-        Selects data before the configuration changes
-        For ARD:  < 01/06/2020
-        For CAU:  < 30/06/2020
+        Selects data after the configuration changes.
+        For ARD:  > 10/09/2020
+        For CAU:  > 19/10/2020
         """
         if self.data_type == 'pd.DataFrame':
             print('Not yet implemented for DataFrame')
@@ -272,7 +272,7 @@ class TurbineData:
 
     def select_normal_operation_times(self, verbose=False):
         """
-        Removes times where any turbine is not functioning normaly.
+        Removes times where any turbine is not functioning normally.
         Best to run after running select turbines
         """
         if self.data_type == 'np.ndarray':
@@ -312,7 +312,7 @@ class TurbineData:
             unsaturated = self.data['Power'] < cutoff
             self.data = self.data[unsaturated]
 
-    def select_power_min(self,cutoff=10,verbose=False):
+    def select_power_min(self, cutoff=10, verbose=False):
         """
         Removes times where any turbine has very low power.
         Best to run after running select turbines
@@ -435,13 +435,11 @@ class TurbineData:
             return row
 
         dfs = np.array_split(df, 200)
-        # print(dfs)
         fr = 0
         for frame in tqdm(dfs, leave=False):
             fr = fr + 1
 
             frame = frame.apply(f, axis=1)
-            # print(frame)
             frame = frame[frame['affected'] == 1]
             frame_prime = frame[['ts', 'other_id']]
             
@@ -480,7 +478,7 @@ class TurbineData:
 
 def load_data(path: str, data_type: str, flag: bool = False):
     """
-    Load wind turbine data.
+    Loads wind turbine data.
     
     Parameters
     ----------
@@ -524,7 +522,7 @@ def load_data(path: str, data_type: str, flag: bool = False):
 
 def load_positions(path, data_type, flag=False):
     """
-    Load wind turbine relative position data.
+    Loads wind turbine relative position data.
     
     Parameters
     ----------
@@ -566,7 +564,7 @@ def load_positions(path, data_type, flag=False):
 
 def load_data_positions(path, data_type, flag=False):
     """
-    Load wind turbine data and relative position data combined.
+    Loads wind turbine data and relative position data combined.
     
     Parameters
     ----------
@@ -606,6 +604,5 @@ def load_data_positions(path, data_type, flag=False):
 
     data_joined = pd.merge(data, pos, left_on=["instanceID"],
 						   right_on=["Obstical"])
-    # data_joined.reset_index(drop=True,inplace=True)
     return data_joined
     

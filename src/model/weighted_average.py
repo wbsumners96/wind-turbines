@@ -13,7 +13,7 @@ class WeightedAverage(Predictor):
     def fit(self, data):
         pass
 
-    def predict(self,data,targets,references,times=None):
+    def predict(self, data, targets, references, times=None):
         """
         Calls predict_tensor or predict_pd depending on datatype
         """
@@ -22,7 +22,7 @@ class WeightedAverage(Predictor):
         if data.data_type == "np.ndarray":
             return self.predict_tensor(data, targets, references)
 
-    def predict_tensor(self,data,tar_mask,ref_mask,verbose=False):
+    def predict_tensor(self, data, tar_mask, ref_mask, verbose=False):
         """
         Predict the power of the specified wind turbines.
         Needs data as a numpy array, parallel over time axis
@@ -213,4 +213,3 @@ class GaussianWeightedAverage(WeightedAverage):
             return np.exp(-gamma*distance*distance)
 
         super().__init__(weighting)
-

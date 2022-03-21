@@ -1,9 +1,9 @@
-from joblib import dump
 import sys
 import time
 import itertools
-from pathlib import Path
 import threading
+from joblib import dump
+from pathlib import Path
 
 from load_data import TurbineData
 
@@ -129,6 +129,6 @@ class TurbineApp:
         self.create_predictors()
         print('Success.\nRunning predictions...')
 
-        path = Path('~/.turbines/app_predictions_testing/').expanduser()
+        path = Path('~/.turbines/predictions/').expanduser()
         self.run_predictions(path, 'ARD')
         print('Predictions complete.')
