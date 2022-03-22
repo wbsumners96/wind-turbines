@@ -218,9 +218,9 @@ app and UI.
 The `TurbineApp` class loads the data and runs predictions for specified models.
 - `__init__(data_path, farm)`  
    Initializes a TurbineApp object with the specified data path and farm.
-- `load_data`  
+- `load_data()`  
    Loads the data and returns a TurbineData object.
-- `clean_data`  
+- `clean_data()`  
    Performs pre-processing operations on the data.
 - `create_predictors()`  
    Creates a predictor object for each model.
